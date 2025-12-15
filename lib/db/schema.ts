@@ -41,8 +41,8 @@ export const transactionTypeEnum = pgEnum("transaction_type", ["EXPENSE", "INCOM
 
 export const expenses = pgTable("expenses", {
     id: uuid("id").defaultRandom().primaryKey(),
-    userId: uuid("user_id").references(() => users.id).notNull(),
-    familyId: uuid("family_id").references(() => families.id).notNull(),
+    userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+    familyId: uuid("family_id").references(() => families.id, { onDelete: "cascade" }).notNull(),
     categoryId: uuid("category_id").references(() => categories.id).notNull(),
     amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
     description: text("description"),
