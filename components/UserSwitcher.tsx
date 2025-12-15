@@ -20,7 +20,7 @@ export default function UserSwitcher() {
             >
                 <div
                     className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm"
-                    style={{ backgroundColor: currentUser.color }}
+                    style={{ backgroundColor: currentUser.color || "#3b82f6" }}
                 >
                     {currentUser.name[0]}
                 </div>

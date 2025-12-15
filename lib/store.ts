@@ -35,6 +35,7 @@ const generateMockExpenses = (): Expense[] => {
             description: `${category} purchase`,
             category,
             userId: user.id,
+            type: "EXPENSE",
         });
     }
     return expenses.sort((a, b) => b.date.getTime() - a.date.getTime());
