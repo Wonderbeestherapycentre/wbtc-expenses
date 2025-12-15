@@ -13,7 +13,7 @@ export default function RegisterPage() {
     const router = useRouter();
 
     useEffect(() => {
-        // router.replace('/'); // or router.push()
+        router.replace('/'); // or router.push()
     }, [router]);
     const [state, dispatch, isPending] = useActionState(register, undefined);
 
