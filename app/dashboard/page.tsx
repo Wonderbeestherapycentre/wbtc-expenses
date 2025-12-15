@@ -86,7 +86,7 @@ export default async function Home({ searchParams }: { searchParams: any }) {
                                                 </div>
                                             </div>
                                             <span className={`font-bold ${e.type === "INCOME" ? "text-green-600" : "text-gray-900 dark:text-white"}`}>
-                                                {e.type === "INCOME" ? "+" : "-"}${Number(e.amount).toFixed(2)}
+                                                {e.type === "INCOME" ? "+" : "-"}₹{Number(e.amount).toFixed(2)}
                                             </span>
                                         </div>
                                     ))

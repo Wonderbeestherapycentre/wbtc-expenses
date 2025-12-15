@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { Edit2, Trash2, Plus } from "lucide-react";
 import { deleteUser } from "@/lib/actions";
 import UserModal from "./UserModal";
+import ConfirmModal from "@/components/ConfirmModal";
 
 interface User {
     id: string;
@@ -24,10 +25,22 @@ export default function UserList({ users, currentUserRole, currentUserId }: User
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isPending, startTransition] = useTransition();
 
-    const handleDelete = (id: string) => {
-        if (!confirm("Are you sure you want to delete this user?")) return;
+    // Delete confirmation state
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+    const [userToDelete, setUserToDelete] = useState<string | null>(null);
+
+    const handleDeleteClick = (id: string) => {
+        setUserToDelete(id);
+        setDeleteConfirmOpen(true);
+    };
+
+    const onConfirmDelete = () => {
+        if (!userToDelete) return;
+
         startTransition(async () => {
-            await deleteUser(id);
+            await deleteUser(userToDelete);
+            setDeleteConfirmOpen(false);
+            setUserToDelete(null);
         });
     };
 
@@ -38,6 +51,19 @@ export default function UserList({ users, currentUserRole, currentUserId }: User
                 onClose={() => setIsModalOpen(false)}
                 user={editingUser}
                 currentUserRole={currentUserRole}
+            />
+
+            <ConfirmModal
+                isOpen={deleteConfirmOpen}
+                onClose={() => {
+                    setDeleteConfirmOpen(false);
+                    setUserToDelete(null);
+                }}
+                onConfirm={onConfirmDelete}
+                title="Delete User"
+                description="Are you sure you want to delete this user? This action cannot be undone."
+                confirmLabel="Delete User"
+                isPending={isPending}
             />
 
             <div className="p-6 border-b border-gray-100 dark:border-neutral-800 flex justify-between items-center bg-white dark:bg-neutral-900">
@@ -104,7 +130,7 @@ export default function UserList({ users, currentUserRole, currentUserId }: User
                                             </button>
                                             {currentUserRole === "ADMIN" && currentUserId !== user.id && (
                                                 <button
-                                                    onClick={() => handleDelete(user.id)}
+                                                    onClick={() => handleDeleteClick(user.id)}
                                                     disabled={isPending}
                                                     className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50"
                                                 >

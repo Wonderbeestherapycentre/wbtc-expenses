@@ -42,9 +42,14 @@ export default function ExpenseList({ expenses, categories }: ExpenseListProps) 
         if (!deletingExpense) return;
 
         startTransition(async () => {
-            await deleteExpense(deletingExpense.id);
+            const result = await deleteExpense(deletingExpense.id);
             setDeletingExpense(null);
-            toast.success("Expense deleted successfully");
+
+            if (result?.message?.includes("deleted")) {
+                toast.success("Expense deleted successfully");
+            } else {
+                toast.error(result?.message || "Failed to delete expense");
+            }
         });
     };
 
@@ -151,7 +156,7 @@ export default function ExpenseList({ expenses, categories }: ExpenseListProps) 
                                             </div>
                                         </td>
                                         <td className={`py-3 px-1 md:py-4 md:px-6 font-bold ${expense.type === "INCOME" ? "text-green-600" : "text-gray-900 dark:text-white"}`}>
-                                            {expense.type === "INCOME" ? "+" : "-"}${Number(expense.amount).toFixed(2)}
+                                            {expense.type === "INCOME" ? "+" : "-"}₹{Number(expense.amount).toFixed(2)}
                                         </td>
                                         <td className="hidden md:table-cell py-3 px-3 md:py-4 md:px-6 text-sm text-gray-600 dark:text-gray-400 max-w-[150px] truncate" title={expense.description || ""}>
                                             {expense.description || "-"}

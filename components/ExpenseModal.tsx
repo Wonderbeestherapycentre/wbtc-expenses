@@ -6,6 +6,7 @@ import { createPortal } from "react-dom";
 import { format } from "date-fns";
 import { addExpenseAction, updateExpense } from "@/lib/actions";
 import CategoryManager from "@/components/CategoryManager";
+import { toast } from "sonner";
 
 interface Expense {
     id: string;
@@ -63,7 +64,7 @@ export default function ExpenseModal({ isOpen, onClose, expense, categories }: E
                 setType(expense.type || "EXPENSE");
             } else {
                 setAmount("");
-                setCategoryId(categories[0]?.id || "");
+                setCategoryId("");
                 setDate(format(new Date(), "yyyy-MM-dd"));
                 setType("EXPENSE");
             }
@@ -100,9 +101,11 @@ export default function ExpenseModal({ isOpen, onClose, expense, categories }: E
             }
 
             if (result?.message.includes("added") || result?.message.includes("updated")) {
+                toast.success(result.message);
                 onClose();
             } else {
                 setError(result?.message || "Error saving expense");
+                toast.error(result?.message || "Error saving expense");
             }
         });
     };
@@ -145,7 +148,7 @@ export default function ExpenseModal({ isOpen, onClose, expense, categories }: E
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Amount</label>
                                 <div className="relative">
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
                                     <input
                                         name="amount"
                                         type="number"
@@ -188,6 +191,7 @@ export default function ExpenseModal({ isOpen, onClose, expense, categories }: E
                                         onChange={(e) => setCategoryId(e.target.value)}
                                         className="w-full px-4 py-3 bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all appearance-none"
                                     >
+                                        <option value="" disabled>Select Category</option>
                                         {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                                     </select>
                                 </div>

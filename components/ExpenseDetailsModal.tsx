@@ -53,7 +53,7 @@ export default function ExpenseDetailsModal({ isOpen, onClose, expense }: Expens
                             {expense.type === "INCOME" ? "Income" : "Expense"}
                         </span>
                         <h3 className={`text-4xl font-bold ${expense.type === "INCOME" ? "text-green-600" : "text-gray-900 dark:text-white"}`}>
-                            {expense.type === "INCOME" ? "+" : "-"}${Number(expense.amount).toFixed(2)}
+                            {expense.type === "INCOME" ? "+" : "-"}₹{Number(expense.amount).toFixed(2)}
                         </h3>
                     </div>
 

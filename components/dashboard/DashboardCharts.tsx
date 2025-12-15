@@ -32,7 +32,7 @@ export default function DashboardCharts({ stats }: DashboardChartsProps) {
                 <div className="bg-white dark:bg-neutral-800 p-2 border border-gray-100 dark:border-neutral-700 rounded-lg shadow-lg">
                     <p className="font-medium text-gray-900 dark:text-white">{payload[0].name}</p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                        ${Number(payload[0].value).toFixed(2)}
+                        ₹{Number(payload[0].value).toFixed(2)}
                     </p>
                 </div>
             );

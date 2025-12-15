@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { useState, useTransition, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { createCategory, updateCategory } from "@/lib/actions";
+import { toast } from "sonner";
 
 interface Category {
     id: string;
@@ -42,9 +43,10 @@ export default function CategoryModal({ isOpen, onClose, category }: CategoryMod
             // Simple check for success message or lack of error
             // The actions return { message: string }
             if (result?.message.includes("created") || result?.message.includes("updated")) {
+                toast.success(result.message);
                 onClose();
             } else {
-                alert(result.message);
+                toast.error(result?.message || "Error saving category");
             }
         });
     };

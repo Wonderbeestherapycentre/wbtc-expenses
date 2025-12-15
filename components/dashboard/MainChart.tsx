@@ -41,7 +41,7 @@ export default function MainChart({ expenses, period = "month" }: MainChartProps
                             axisLine={false}
                             tickLine={false}
                             tick={{ fontSize: 12, fill: '#6b7280' }}
-                            tickFormatter={(val) => `$${val}`}
+                            tickFormatter={(val) => `₹${val}`}
                         />
                         <Tooltip
                             cursor={{ fill: 'transparent' }}
