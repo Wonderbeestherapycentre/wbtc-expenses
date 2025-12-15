@@ -4,7 +4,7 @@ export interface User {
     id: string;
     name: string;
     avatar?: string;
-    color: string;
+    color: string | null;
 }
 
 export interface Expense {
@@ -13,7 +13,11 @@ export interface Expense {
     date: Date;
     description: string | null;
     category: string;
+    categoryId?: string;
     userId: string;
+    user?: User; // Optional pending user fetch
+    type: "INCOME" | "EXPENSE";
+    childName?: string;
 }
 
 export interface ExpenseSummary {

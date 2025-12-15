@@ -2,7 +2,8 @@
 
 import React from "react";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Receipt, Settings, Tags, Users, Plus, X } from "lucide-react";
+import { LayoutDashboard, Receipt, Settings, Tags, Users, Plus, X, Baby } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 import UserSwitcher from "./UserSwitcher";
 import Link from "next/link";
@@ -18,10 +19,14 @@ export default function Sidebar({ isOpen, onClose, onAddExpense }: SidebarProps)
     const pathname = usePathname();
 
     const navItems = [
-        { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard", active: pathname === "/dashboard" }, { icon: Receipt, label: "All Expenses", href: "/expenses" },
+        { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard", active: pathname === "/dashboard" },
+        { icon: Receipt, label: "All Expenses", href: "/expenses" },
         { icon: Tags, label: "Categories", href: "/settings/categories" },
+        { icon: Baby, label: "Children", href: "/settings/children" },
         { icon: Users, label: "Team Members", href: "/settings" },
     ];
+
+
 
     return (
         <>

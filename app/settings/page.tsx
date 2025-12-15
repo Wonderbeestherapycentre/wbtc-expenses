@@ -1,19 +1,24 @@
 import AppLayout from "@/components/AppLayout";
 import { auth } from "@/auth";
-import { fetchUsers, fetchCategories } from "@/lib/data";
+import { fetchUsers, fetchCategories } from "@/lib/data"; // Removed fetchChildren
 import UserList from "@/components/settings/UserList";
+// Removed ChildSettings import
+
 
 export default async function SettingsPage() {
     const session = await auth();
     const users = await fetchUsers();
     const categories = await fetchCategories();
 
+
     // Cast user role from DB which is string to literal
     const currentUserRole = (session?.user?.role as "ADMIN" | "USER") || "USER";
 
     return (
         <AppLayout categories={categories}>
-            <div className="space-y-6 animate-fade-in">
+
+
+            <div className="space-y-6 animate-fade-in pb-10">
                 <div>
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Team Members</h2>
                     <p className="text-gray-500 dark:text-gray-400 mt-1">Manage your family users</p>

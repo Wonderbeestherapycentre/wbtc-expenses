@@ -1,46 +1,47 @@
 "use client";
 
-import { X, Settings } from "lucide-react";
+
+import { X } from "lucide-react";
 import { useState, useEffect, useActionState, useTransition } from "react";
 import { createPortal } from "react-dom";
 import { format } from "date-fns";
 import { addExpenseAction, updateExpense } from "@/lib/actions";
-import CategoryManager from "@/components/CategoryManager";
 import { toast } from "sonner";
+import SearchableSelect from "./SearchableSelect";
 
 interface Expense {
     id: string;
     amount: number;
-    description: string | null;
-    date: Date;
+    description?: string | null;
+    date: string | Date; // Allow string (ISO) or Date object
+    category?: string; // Could be ID or name depending on usage, usually ID in this app context? No, mapped to name in some places. Let's allow string.
     categoryId?: string;
-    category: string;
+    childId?: string | null;
     type?: "EXPENSE" | "INCOME";
 }
 
-interface Category {
-    id: string;
-    name: string;
-}
-
+// ... imports
 interface ExpenseModalProps {
     isOpen: boolean;
     onClose: () => void;
     expense?: Expense | null;
-    categories: Category[];
+    categories?: { id: string; name: string }[];
+    familyChildren?: { id: string; name: string; status?: string }[];
 }
 
-export default function ExpenseModal({ isOpen, onClose, expense, categories }: ExpenseModalProps) {
+export default function ExpenseModal({ isOpen, onClose, expense, categories = [], familyChildren = [] }: ExpenseModalProps) {
+    const activeChildren = familyChildren.filter(c => c.status !== "INACTIVE");
+
     const [isPending, startTransition] = useTransition();
+    const [error, setError] = useState<string | null>(null);
 
     // Internal state for form values
     const [amount, setAmount] = useState("");
-
-    const [categoryId, setCategoryId] = useState(""); // We need ID now
+    const [description, setDescription] = useState("");
     const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"));
     const [type, setType] = useState<"EXPENSE" | "INCOME">("EXPENSE");
-    const [error, setError] = useState("");
-    const [showCategoryManager, setShowCategoryManager] = useState(false);
+    const [categoryId, setCategoryId] = useState("");
+    const [childId, setChildId] = useState("");
 
     // Portal mount state
     const [mounted, setMounted] = useState(false);
@@ -52,21 +53,25 @@ export default function ExpenseModal({ isOpen, onClose, expense, categories }: E
     // Initialize/Reset form
     useEffect(() => {
         if (isOpen) {
+            setError(null); // Clear any previous errors
             if (expense) {
                 setAmount(expense.amount.toString());
-
-                // Need to find category ID match by name if expense only has name, 
-                // but better if we pass full expense with relations.
-                // For now, let's assume expense has name, find match in categories list
-                const match = categories.find(c => c.name === expense.category);
-                setCategoryId(match?.id || categories[0]?.id || "");
+                setDescription(expense.description || "");
                 setDate(format(new Date(expense.date), "yyyy-MM-dd"));
                 setType(expense.type || "EXPENSE");
+
+                // Map category name/ID to actual ID from options
+                const catMatch = categories.find(c => c.id === expense.categoryId || c.name === expense.category);
+                setCategoryId(catMatch ? catMatch.id : "");
+
+                setChildId(expense.childId || "");
             } else {
                 setAmount("");
-                setCategoryId("");
+                setDescription("");
                 setDate(format(new Date(), "yyyy-MM-dd"));
                 setType("EXPENSE");
+                setCategoryId(categories[0]?.id || "");
+                setChildId("");
             }
         }
     }, [isOpen, expense, categories]);
@@ -76,21 +81,10 @@ export default function ExpenseModal({ isOpen, onClose, expense, categories }: E
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
-        // Append explicit category ID logic or rely on select name="categoryName" vs "categoryId"??
-        // Action expects category NAME for Create, and CategoryID for Update? 
-        // Let's check actions. updateExpense uses fallback. addExpense uses name.
-        // Let's pass 'category' name for both to be safe or pass ID.
-        // Wait, action logic:
-        // addExpenseAction: gets 'category' name.
-        // updateExpense: gets 'amount', ..., 'categoryId'. if no categoryId, tries 'category' name.
-
-        // Let's populate formData with selected category Name
-        const selectedCat = categories.find(c => c.id === categoryId);
-        if (selectedCat) {
-            formData.set("category", selectedCat.name);
-            formData.set("categoryId", selectedCat.id);
-        }
         formData.set("type", type); // Explicitly set type
+
+        // Ensure childId is set if selected
+        if (childId) formData.set("childId", childId);
 
         startTransition(async () => {
             let result;
@@ -116,7 +110,7 @@ export default function ExpenseModal({ isOpen, onClose, expense, categories }: E
         <>
             {createPortal(
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-white dark:bg-neutral-900 rounded-2xl w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200 border border-gray-100 dark:border-neutral-800">
+                    <div className="bg-white dark:bg-neutral-900 rounded-2xl w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200 border border-gray-100 dark:border-neutral-800 max-h-[90vh] overflow-y-auto custom-scrollbar">
                         <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-neutral-800">
                             <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                                 {expense ? (type === "EXPENSE" ? "Edit Expense" : "Edit Income") : "Add Transaction"}
@@ -132,14 +126,14 @@ export default function ExpenseModal({ isOpen, onClose, expense, categories }: E
                                 <button
                                     type="button"
                                     onClick={() => setType("EXPENSE")}
-                                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${type === "EXPENSE" ? "bg-white dark:bg-neutral-700 text-red-600 shadow-sm" : "text-gray-500 hover:text-gray-900 dark:hover:text-gray-300"}`}
+                                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${type === "EXPENSE" ? "bg-white dark:bg-neutral-700 text-red-600 shadow-sm" : "text-gray-500 hover:text-gray-900 dark:hover:text-gray-300"} `}
                                 >
                                     Expense
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => setType("INCOME")}
-                                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${type === "INCOME" ? "bg-white dark:bg-neutral-700 text-green-600 shadow-sm" : "text-gray-500 hover:text-gray-900 dark:hover:text-gray-300"}`}
+                                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${type === "INCOME" ? "bg-white dark:bg-neutral-700 text-green-600 shadow-sm" : "text-gray-500 hover:text-gray-900 dark:hover:text-gray-300"} `}
                                 >
                                     Income
                                 </button>
@@ -162,39 +156,60 @@ export default function ExpenseModal({ isOpen, onClose, expense, categories }: E
                                 </div>
                             </div>
 
+                            {/* Category Select */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
+                                <select
+                                    name="categoryId"
+                                    value={categoryId}
+                                    required
+                                    onChange={(e) => setCategoryId(e.target.value)}
+                                    className="w-full px-4 py-3 bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all appearance-none"
+                                >
+                                    <option value="" disabled>Select Category</option>
+                                    {categories.map(c => (
+                                        <option key={c.id} value={c.id}>{c.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Child Select (Optional) - Only for Expenses? */}
+                            {type === "EXPENSE" && activeChildren.length > 0 && (
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Child <span className="text-gray-400 font-normal">(Optional)</span></label>
+                                    <SearchableSelect
+                                        options={activeChildren}
+                                        value={childId}
+                                        onChange={setChildId}
+                                        placeholder="Select Child"
+                                    />
+                                    {/* Hidden input for form submission if needed, but we handle it in state. 
+                                        However, if we want formData to work automatically without manual append, we might need a hidden input.
+                                        But handleSubmit constructs formData manually or uses useActionState. 
+                                        Let's check handleSubmit.
+                                        It uses new FormData(e.currentTarget).
+                                        So we either need a hidden input with name="childId" or append it manually.
+                                        SearchableSelect has a hidden input? Let's check.
+                                        Yes, SearchableSelect has a hidden input but it doesn't have a name prop passed to it yet.
+                                        I should verify SearchableSelect again or just manual append in handleSubmit.
+                                        Let's manual append in handleSubmit to be safe as I did comment out that logic earlier.
+                                    */}
+                                </div>
+                            )}
+
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description <span className="text-gray-400 font-normal">(Optional)</span></label>
                                 <input
                                     name="description"
                                     type="text"
-                                    defaultValue={expense?.description || ""}
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
                                     className="w-full px-4 py-3 bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
                                     placeholder="What was this for?"
                                 />
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <div className="flex justify-between items-center mb-1">
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowCategoryManager(true)}
-                                            className="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
-                                        >
-                                            <Settings className="w-3 h-3" /> Manage
-                                        </button>
-                                    </div>
-                                    <select
-                                        name="categoryId"
-                                        value={categoryId}
-                                        onChange={(e) => setCategoryId(e.target.value)}
-                                        className="w-full px-4 py-3 bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all appearance-none"
-                                    >
-                                        <option value="" disabled>Select Category</option>
-                                        {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                    </select>
-                                </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
                                     <input
@@ -214,7 +229,7 @@ export default function ExpenseModal({ isOpen, onClose, expense, categories }: E
                                     disabled={isPending}
                                     className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors shadow-lg shadow-blue-600/20 disabled:opacity-50"
                                 >
-                                    {isPending ? "Saving..." : (expense ? "Save Changes" : `Add ${type === "EXPENSE" ? "Expense" : "Income"}`)}
+                                    {isPending ? "Saving..." : (expense ? "Save Changes" : `Add ${type === "EXPENSE" ? "Expense" : "Income"} `)}
                                 </button>
                                 {error && (
                                     <p className="text-red-500 text-sm text-center mt-2">{error}</p>
@@ -225,12 +240,7 @@ export default function ExpenseModal({ isOpen, onClose, expense, categories }: E
                 </div>,
                 document.body
             )}
-
-            <CategoryManager
-                isOpen={showCategoryManager}
-                onClose={() => setShowCategoryManager(false)}
-                categories={categories}
-            />
         </>
     );
 }
+

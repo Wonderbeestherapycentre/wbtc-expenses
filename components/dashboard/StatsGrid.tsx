@@ -1,7 +1,7 @@
 "use client";
 
 import { formatCurrency } from "@/lib/utils";
-import { TrendingUp, Wallet, CreditCard } from "lucide-react";
+import { TrendingUp, Wallet, CreditCard, Users, UserX } from "lucide-react";
 
 interface StatsGridProps {
     stats: {
@@ -11,9 +11,13 @@ interface StatsGridProps {
         byCategory: Record<string, number>;
     };
     period?: string;
+    childStats?: {
+        active: number;
+        inactive: number;
+    };
 }
 
-export default function StatsGrid({ stats, period = "month" }: StatsGridProps) {
+export default function StatsGrid({ stats, period = "month", childStats }: StatsGridProps) {
     // Find top category
     const topCategoryEntry = Object.entries(stats.byCategory).sort(([, a], [, b]) => b - a)[0];
     const topCategory = topCategoryEntry ? topCategoryEntry[0] : "N/A";
@@ -36,14 +40,31 @@ export default function StatsGrid({ stats, period = "month" }: StatsGridProps) {
         {
             label: "Balance",
             value: formatCurrency(stats.balance),
-            icon: CreditCard, // Replace with Scales or PiggyBank?
+            icon: CreditCard,
             color: stats.balance >= 0 ? "text-blue-600" : "text-red-600",
             bg: stats.balance >= 0 ? "bg-blue-50 dark:bg-blue-900/20" : "bg-red-50 dark:bg-red-900/20",
         }
     ];
 
+    if (childStats) {
+        cards.push({
+            label: "Active Children",
+            value: childStats.active.toString(),
+            icon: Users,
+            color: "text-blue-600",
+            bg: "bg-blue-50 dark:bg-blue-900/20",
+        });
+        cards.push({
+            label: "Inactive Children",
+            value: childStats.inactive.toString(),
+            icon: UserX,
+            color: "text-gray-600",
+            bg: "bg-gray-50 dark:bg-gray-900/20",
+        });
+    }
+
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {cards.map((card, i) => (
                 <div
                     key={card.label}

@@ -3,7 +3,8 @@
 import { signIn, signOut } from "@/auth";
 import { AuthError } from "next-auth";
 import { db } from "./db";
-import { users, families, expenses, categories, roleEnum } from "./db/schema";
+import { users, families, expenses, categories, roleEnum, budgets, children } from "./db/schema";
+
 import bcrypt from "bcryptjs";
 import { eq, desc, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -108,39 +109,33 @@ export async function addExpenseAction(prevState: any, formData: FormData) {
 
     const amount = parseFloat(formData.get("amount") as string);
     const description = (formData.get("description") as string) || "";
-    const categoryName = formData.get("category") as string;
     const dateStr = formData.get("date") as string;
     const type = (formData.get("type") as "EXPENSE" | "INCOME") || "EXPENSE";
+    const childId = (formData.get("childId") as string) || null;
 
-    if (!amount || !categoryName || !dateStr) {
+
+    if (!amount || !dateStr) {
         return { message: "Missing fields" };
     }
 
-    // Find category: Prefer family specific, fall back to global
-    // Since we seeded null familyId, we look for that.
-    const category = await db.query.categories.findFirst({
-        where: (categories, { and, or, eq, isNull }) => or(
-            and(eq(categories.name, categoryName), eq(categories.familyId, session.user.familyId as string)),
-            and(eq(categories.name, categoryName), isNull(categories.familyId))
-        ),
-        orderBy: (categories, { desc }) => [desc(categories.familyId)] // Prefer family specific (not null) if exists
-    });
-
-    if (!category) {
-        return { message: "Invalid category" };
+    if (!formData.get("categoryId")) {
+        return { message: "Category is required" };
     }
 
     await db.insert(expenses).values({
         userId: session.user.id,
         familyId: session.user.familyId,
-        categoryId: category.id,
         amount: amount.toString(), // DB expects decimal/string
         description,
         date: new Date(dateStr),
-        type,
+        categoryId: (formData.get("categoryId") as string),
+        // category: (formData.get("category") as string) || "Uncategorized", // REMOVED: Not in schema
+        childId: childId,
+        type: (formData.get("type") as "EXPENSE" | "INCOME") || "EXPENSE",
+
     });
 
-    revalidatePath("/");
+    revalidatePath("/dashboard");
     revalidatePath("/expenses");
     return { message: "Transaction added" };
 }
@@ -245,6 +240,89 @@ export async function deleteCategory(id: string) {
     return { message: "Category deleted" };
 }
 
+// --- Budget Actions ---
+export async function createBudget(formData: FormData) {
+    const session = await auth();
+    if (!session?.user?.familyId) return { message: "Unauthorized" };
+
+    const name = formData.get("name") as string;
+    const amount = parseFloat(formData.get("amount") as string);
+    const categoryId = formData.get("categoryId") as string;
+    const startDate = formData.get("startDate") as string;
+    const endDate = formData.get("endDate") as string;
+
+    if (!name || !amount || !categoryId || !startDate || !endDate) {
+        return { message: "Missing fields" };
+    }
+
+    // Broken due to schema mismatch (budgets table missing name, startDate, endDate, amount)
+    // await db.insert(budgets).values({
+    //     name,
+    //     amount: amount.toString(),
+    //     categoryId,
+    //     familyId: session.user.familyId,
+    //     startDate: new Date(startDate),
+    //     endDate: new Date(endDate),
+    // });
+
+    return { message: "Feature not implemented yet" };
+    // revalidatePath("/settings");
+    // revalidatePath("/budgets");
+    // return { message: "Budget created" };
+}
+
+export async function updateBudget(id: string, formData: FormData) {
+    const session = await auth();
+    if (!session?.user?.familyId) return { message: "Unauthorized" };
+
+    const name = formData.get("name") as string;
+    const amount = parseFloat(formData.get("amount") as string);
+    const categoryId = formData.get("categoryId") as string;
+    const startDate = formData.get("startDate") as string;
+    const endDate = formData.get("endDate") as string;
+
+    if (!name || !amount || !categoryId || !startDate || !endDate) {
+        return { message: "Missing fields" };
+    }
+
+    const budget = await db.query.budgets.findFirst({
+        where: and(eq(budgets.id, id), eq(budgets.familyId, session.user.familyId))
+    });
+
+    if (!budget) return { message: "Budget not found" };
+
+    // Broken due to schema mismatch
+    // await db.update(budgets).set({
+    //     name,
+    //     amount: amount.toString(),
+    //     categoryId,
+    //     startDate: new Date(startDate),
+    //     endDate: new Date(endDate),
+    // }).where(eq(budgets.id, id));
+
+    return { message: "Feature not implemented yet" };
+    // revalidatePath("/settings");
+    // revalidatePath("/budgets");
+    // return { message: "Budget updated" };
+}
+
+export async function deleteBudget(id: string) {
+    const session = await auth();
+    if (!session?.user?.familyId) return { message: "Unauthorized" };
+
+    const budget = await db.query.budgets.findFirst({
+        where: and(eq(budgets.id, id), eq(budgets.familyId, session.user.familyId))
+    });
+
+    if (!budget) return { message: "Budget not found" };
+
+    await db.delete(budgets).where(eq(budgets.id, id));
+
+    revalidatePath("/settings");
+    revalidatePath("/budgets");
+    return { message: "Budget deleted" };
+}
+
 // --- Expense Actions --- (Update/Delete)
 export async function deleteExpense(id: string) {
     const session = await auth();
@@ -268,37 +346,23 @@ export async function updateExpense(id: string, formData: FormData) {
 
     const amount = parseFloat(formData.get("amount") as string);
     const description = (formData.get("description") as string) || "";
-    const categoryName = formData.get("category") as string;
     const dateStr = formData.get("date") as string;
-    const categoryId = formData.get("categoryId") as string; // Ideally use ID if possible, but we use name in other flow.
     const type = (formData.get("type") as "EXPENSE" | "INCOME") || "EXPENSE";
 
-    if (!amount || !dateStr) {
+    const categoryId = formData.get("categoryId") as string;
+
+    if (!amount || !dateStr || !categoryId) {
         return { message: "Missing fields" };
     }
-
-    // Resolve Category ID
-    let finalCategoryId = categoryId;
-    if (!finalCategoryId && categoryName) {
-        // Logic same as addExpense: find category by name
-        const category = await db.query.categories.findFirst({
-            where: (categories, { and, or, eq, isNull }) => or(
-                and(eq(categories.name, categoryName), eq(categories.familyId, session.user.familyId as string)),
-                and(eq(categories.name, categoryName), isNull(categories.familyId))
-            ),
-            orderBy: (categories, { desc }) => [desc(categories.familyId)]
-        });
-        if (category) finalCategoryId = category.id;
-    }
-
-    if (!finalCategoryId) return { message: "Invalid category" };
 
     await db.update(expenses).set({
         amount: amount.toString(),
         description,
         date: new Date(dateStr),
-        categoryId: finalCategoryId,
-        type,
+        categoryId: categoryId,
+        childId: (formData.get("childId") as string) || null,
+        type: (formData.get("type") as "EXPENSE" | "INCOME") || "EXPENSE",
+
     }).where(and(eq(expenses.id, id), eq(expenses.familyId, session.user.familyId)));
 
     revalidatePath("/");
@@ -345,4 +409,52 @@ export async function updatePassword(prevState: any, formData: FormData) {
         .where(eq(users.id, session.user.id));
 
     return "Success";
+}
+
+// --- Child Actions ---
+export async function createChild(formData: FormData) {
+    const session = await auth();
+    if (!session?.user?.familyId) return { message: "Unauthorized" };
+
+    const name = formData.get("name") as string;
+    const status = (formData.get("status") as "ACTIVE" | "INACTIVE") || "ACTIVE";
+
+    if (!name) return { message: "Name is required" };
+
+    await db.insert(children).values({
+        name,
+        status,
+        familyId: session.user.familyId
+    });
+
+    revalidatePath("/settings");
+    return { message: "Child created" };
+}
+
+export async function updateChild(id: string, formData: FormData) {
+    const session = await auth();
+    if (!session?.user?.familyId) return { message: "Unauthorized" };
+
+    const name = formData.get("name") as string;
+    const status = (formData.get("status") as "ACTIVE" | "INACTIVE") || "ACTIVE";
+
+    if (!name) return { message: "Name is required" };
+
+    await db.update(children).set({ name, status }).where(and(eq(children.id, id), eq(children.familyId, session.user.familyId)));
+    revalidatePath("/settings");
+    return { message: "Child updated" };
+}
+
+export async function deleteChild(id: string) {
+    const session = await auth();
+    if (!session?.user?.familyId) return { message: "Unauthorized" };
+
+    try {
+        await db.delete(children).where(and(eq(children.id, id), eq(children.familyId, session.user.familyId)));
+    } catch (e) {
+        return { message: "Cannot delete child in use" };
+    }
+
+    revalidatePath("/settings");
+    return { message: "Child deleted" };
 }

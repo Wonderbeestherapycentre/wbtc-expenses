@@ -12,7 +12,7 @@ interface Category {
     name: string;
 }
 
-export default function AppLayout({ children, categories = [] }: { children: React.ReactNode; categories?: Category[] }) {
+export default function AppLayout({ children, categories = [], familyChildren = [] }: { children: React.ReactNode; categories?: Category[]; familyChildren?: any[] }) {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
     const { currentUser } = useExpenses();
@@ -21,7 +21,7 @@ export default function AppLayout({ children, categories = [] }: { children: Rea
 
     return (
         <div className="h-screen overflow-hidden flex flex-col md:flex-row">
-            <ExpenseModal isOpen={isAddExpenseOpen} onClose={() => setIsAddExpenseOpen(false)} categories={categories} />
+            <ExpenseModal isOpen={isAddExpenseOpen} onClose={() => setIsAddExpenseOpen(false)} categories={categories} familyChildren={familyChildren} />
 
             {/* Mobile Header */}
             <div className="md:hidden flex items-center justify-between p-4 bg-white dark:bg-neutral-900 border-b border-gray-200 dark:border-neutral-800 sticky top-0 z-50">

@@ -1,5 +1,6 @@
 import { db } from "./db";
-import { expenses, users, categories } from "./db/schema";
+import { expenses, users, categories, children } from "./db/schema";
+
 import { eq, desc, and, gte, lte, sql } from "drizzle-orm";
 import { auth } from "@/auth";
 
@@ -49,7 +50,8 @@ export async function fetchExpenses(limit?: number, filters?: ExpenseFilters, pa
         offset: offset,
         with: {
             user: true,
-            category: true
+            category: true,
+            child: true // Fetch child relation
         }
     });
 
@@ -60,6 +62,9 @@ export async function fetchExpenses(limit?: number, filters?: ExpenseFilters, pa
         date: e.date,
         description: e.description,
         category: e.category?.name || "Uncategorized",
+        categoryId: e.categoryId,
+        childId: e.childId,
+        childName: e.child?.name, // Map child name
         userId: e.userId,
         type: e.type,
         user: e.user
@@ -145,4 +150,21 @@ export async function fetchCategories() {
         name: c.name,
         isSystem: !c.familyId // Helper for UI to disable edit/delete
     }));
+}
+
+export async function fetchChildren(includeInactive = false) {
+    const session = await auth();
+    if (!session?.user?.familyId) return [];
+
+    const conditions = [eq(children.familyId, session.user.familyId)];
+    if (!includeInactive) {
+        conditions.push(eq(children.status, "ACTIVE"));
+    }
+
+    const data = await db.query.children.findMany({
+        where: and(...conditions),
+        orderBy: [desc(children.createdAt)]
+    });
+
+    return data;
 }

@@ -16,6 +16,7 @@ interface Expense {
     date: Date;
     category: string;
     type: "EXPENSE" | "INCOME";
+    childName?: string | null;
     user?: {
         name: string;
         color?: string | null;
@@ -25,9 +26,10 @@ interface Expense {
 interface ExpenseListProps {
     expenses: Expense[];
     categories: { id: string; name: string; isSystem?: boolean }[];
+    familyChildren?: { id: string; name: string; status?: string }[];
 }
 
-export default function ExpenseList({ expenses, categories }: ExpenseListProps) {
+export default function ExpenseList({ expenses, categories, familyChildren = [] }: ExpenseListProps) {
     const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
     const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
     const [viewingExpense, setViewingExpense] = useState<Expense | null>(null);
@@ -60,12 +62,14 @@ export default function ExpenseList({ expenses, categories }: ExpenseListProps) 
                 onClose={() => setEditingExpense(null)}
                 expense={editingExpense}
                 categories={categories}
+                familyChildren={familyChildren}
             />
 
             <ExpenseModal
                 isOpen={isAddExpenseOpen}
                 onClose={() => setIsAddExpenseOpen(false)}
                 categories={categories}
+                familyChildren={familyChildren}
             />
 
             <ExpenseDetailsModal
@@ -100,6 +104,7 @@ export default function ExpenseList({ expenses, categories }: ExpenseListProps) 
                             <tr>
                                 <th className="text-left py-3 px-1 md:py-4 md:px-6 text-xs font-semibold text-gray-500 uppercase">Date</th>
                                 <th className="hidden md:table-cell text-left py-3 px-3 md:py-4 md:px-6 text-xs font-semibold text-gray-500 uppercase">Member</th>
+                                <th className="hidden md:table-cell text-left py-3 px-3 md:py-4 md:px-6 text-xs font-semibold text-gray-500 uppercase">Child</th>
                                 <th className="hidden md:table-cell text-left py-3 px-3 md:py-4 md:px-6 text-xs font-semibold text-gray-500 uppercase">Type</th>
                                 <th className="hidden md:table-cell text-left py-3 px-3 md:py-4 md:px-6 text-xs font-semibold text-gray-500 uppercase">Category</th>
                                 <th className="md:hidden text-left py-3 px-3 text-xs font-semibold text-gray-500 uppercase">Details</th>
@@ -138,6 +143,15 @@ export default function ExpenseList({ expenses, categories }: ExpenseListProps) 
                                             )}
                                         </td>
                                         <td className="hidden md:table-cell py-3 px-3 md:py-4 md:px-6">
+                                            {expense.childName ? (
+                                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 border border-blue-100 dark:border-blue-800">
+                                                    {expense.childName}
+                                                </span>
+                                            ) : (
+                                                <span className="text-gray-400 text-xs">-</span>
+                                            )}
+                                        </td>
+                                        <td className="hidden md:table-cell py-3 px-3 md:py-4 md:px-6">
                                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${expense.type === "INCOME" ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"}`}>
                                                 {expense.type === "INCOME" ? "Income" : "Expense"}
                                             </span>
@@ -153,9 +167,14 @@ export default function ExpenseList({ expenses, categories }: ExpenseListProps) 
                                                 <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium leading-none ${expense.type === "INCOME" ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"}`}>
                                                     {expense.type === "INCOME" ? "Income" : "Expense"}
                                                 </span>
+                                                {expense.childName && (
+                                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 border border-blue-100 dark:border-blue-800">
+                                                        {expense.childName}
+                                                    </span>
+                                                )}
                                             </div>
                                         </td>
-                                        <td className={`py-3 px-1 md:py-4 md:px-6 font-bold ${expense.type === "INCOME" ? "text-green-600" : "text-gray-900 dark:text-white"}`}>
+                                        <td className={`py-3 px-1 md:py-4 md:px-6 font-bold whitespace-nowrap ${expense.type === "INCOME" ? "text-green-600" : "text-gray-900 dark:text-white"}`}>
                                             {expense.type === "INCOME" ? "+" : "-"}₹{Number(expense.amount).toFixed(2)}
                                         </td>
                                         <td className="hidden md:table-cell py-3 px-3 md:py-4 md:px-6 text-sm text-gray-600 dark:text-gray-400 max-w-[150px] truncate" title={expense.description || ""}>

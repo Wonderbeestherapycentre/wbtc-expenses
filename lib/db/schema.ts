@@ -39,28 +39,56 @@ export const budgets = pgTable("budgets", {
 
 export const transactionTypeEnum = pgEnum("transaction_type", ["EXPENSE", "INCOME"]);
 
+
+export const children = pgTable("children", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    name: text("name").notNull(),
+    status: text("status", { enum: ["ACTIVE", "INACTIVE"] }).default("ACTIVE").notNull(),
+    familyId: uuid("family_id").references(() => families.id).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const expenses = pgTable("expenses", {
     id: uuid("id").defaultRandom().primaryKey(),
     userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
     familyId: uuid("family_id").references(() => families.id, { onDelete: "cascade" }).notNull(),
     categoryId: uuid("category_id").references(() => categories.id).notNull(),
+    childId: uuid("child_id").references(() => children.id),
     amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
     description: text("description"),
     date: timestamp("date").notNull(),
-    type: transactionTypeEnum("type").default("EXPENSE").notNull(),
+    type: text("type").$type<"EXPENSE" | "INCOME">().default("EXPENSE").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
 
 // Relations
 export const familiesRelations = relations(families, ({ many }) => ({
     users: many(users),
-    expenses: many(expenses),
     categories: many(categories),
+    expenses: many(expenses),
+    children: many(children),
 }));
 
 export const usersRelations = relations(users, ({ one, many }) => ({
     family: one(families, {
         fields: [users.familyId],
+        references: [families.id],
+    }),
+    expenses: many(expenses),
+}));
+
+export const categoriesRelations = relations(categories, ({ one, many }) => ({
+    expenses: many(expenses),
+    family: one(families, {
+        fields: [categories.familyId],
+        references: [families.id],
+    }),
+}));
+
+export const childrenRelations = relations(children, ({ one, many }) => ({
+    family: one(families, {
+        fields: [children.familyId],
         references: [families.id],
     }),
     expenses: many(expenses),
@@ -79,4 +107,10 @@ export const expensesRelations = relations(expenses, ({ one }) => ({
         fields: [expenses.familyId],
         references: [families.id],
     }),
+    child: one(children, {
+        fields: [expenses.childId],
+        references: [children.id],
+    }),
 }));
+
+
