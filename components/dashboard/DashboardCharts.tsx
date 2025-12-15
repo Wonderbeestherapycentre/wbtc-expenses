@@ -5,7 +5,7 @@ import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recha
 interface DashboardChartsProps {
     stats: {
         incomeByMember: Record<string, number>;
-        expenseByMember: Record<string, number>;
+        expenseByMember: Record<string, number>; 
     };
 }
 
