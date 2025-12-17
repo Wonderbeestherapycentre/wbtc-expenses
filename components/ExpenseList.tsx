@@ -15,7 +15,7 @@ interface Expense {
     amount: number;
     date: Date;
     category: string;
-    type: "EXPENSE" | "INCOME";
+    type: "EXPENSE" | "INCOME" | "DUE";
     childName?: string | null;
     user?: {
         name: string;
@@ -27,9 +27,10 @@ interface ExpenseListProps {
     expenses: Expense[];
     categories: { id: string; name: string; isSystem?: boolean }[];
     familyChildren?: { id: string; name: string; status?: string }[];
+    defaultChildId?: string;
 }
 
-export default function ExpenseList({ expenses, categories, familyChildren = [] }: ExpenseListProps) {
+export default function ExpenseList({ expenses, categories, familyChildren = [], defaultChildId }: ExpenseListProps) {
     const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
     const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
     const [viewingExpense, setViewingExpense] = useState<Expense | null>(null);
@@ -70,6 +71,7 @@ export default function ExpenseList({ expenses, categories, familyChildren = [] 
                 onClose={() => setIsAddExpenseOpen(false)}
                 categories={categories}
                 familyChildren={familyChildren}
+                defaultChildId={defaultChildId}
             />
 
             <ExpenseDetailsModal
@@ -103,7 +105,6 @@ export default function ExpenseList({ expenses, categories, familyChildren = [] 
                         <thead className="bg-gray-50/50 dark:bg-neutral-800/50 border-b border-gray-100 dark:border-neutral-800">
                             <tr>
                                 <th className="text-left py-3 px-1 md:py-4 md:px-6 text-xs font-semibold text-gray-500 uppercase">Date</th>
-                                <th className="hidden md:table-cell text-left py-3 px-3 md:py-4 md:px-6 text-xs font-semibold text-gray-500 uppercase">Member</th>
                                 <th className="hidden md:table-cell text-left py-3 px-3 md:py-4 md:px-6 text-xs font-semibold text-gray-500 uppercase">Child</th>
                                 <th className="hidden md:table-cell text-left py-3 px-3 md:py-4 md:px-6 text-xs font-semibold text-gray-500 uppercase">Type</th>
                                 <th className="hidden md:table-cell text-left py-3 px-3 md:py-4 md:px-6 text-xs font-semibold text-gray-500 uppercase">Category</th>
@@ -127,7 +128,7 @@ export default function ExpenseList({ expenses, categories, familyChildren = [] 
                                             <span className="md:hidden">{format(new Date(expense.date), "dd MMM yy").toUpperCase()}</span>
                                             <span className="hidden md:inline">{format(new Date(expense.date), "dd MMM yy").toUpperCase()}</span>
                                         </td>
-                                        <td className="hidden md:table-cell py-3 px-3 md:py-4 md:px-6">
+                                        {/* <td className="hidden md:table-cell py-3 px-3 md:py-4 md:px-6">
                                             {expense.user && (
                                                 <div className="flex items-center gap-2">
                                                     <div
@@ -141,7 +142,7 @@ export default function ExpenseList({ expenses, categories, familyChildren = [] 
                                                     </span>
                                                 </div>
                                             )}
-                                        </td>
+                                        </td> */}
                                         <td className="hidden md:table-cell py-3 px-3 md:py-4 md:px-6">
                                             {expense.childName ? (
                                                 <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 border border-blue-100 dark:border-blue-800">

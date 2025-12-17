@@ -17,19 +17,22 @@ interface Expense {
     category?: string; // Could be ID or name depending on usage, usually ID in this app context? No, mapped to name in some places. Let's allow string.
     categoryId?: string;
     childId?: string | null;
-    type?: "EXPENSE" | "INCOME";
+    type?: "EXPENSE" | "INCOME" | "DUE";
 }
 
 // ... imports
+
 interface ExpenseModalProps {
     isOpen: boolean;
     onClose: () => void;
     expense?: Expense | null;
     categories?: { id: string; name: string }[];
     familyChildren?: { id: string; name: string; status?: string }[];
+    defaultType?: "EXPENSE" | "INCOME" | "DUE";
+    defaultChildId?: string;
 }
 
-export default function ExpenseModal({ isOpen, onClose, expense, categories = [], familyChildren = [] }: ExpenseModalProps) {
+export default function ExpenseModal({ isOpen, onClose, expense, categories = [], familyChildren = [], defaultType = "EXPENSE", defaultChildId = "" }: ExpenseModalProps) {
     const activeChildren = familyChildren.filter(c => c.status !== "INACTIVE");
 
     const [isPending, startTransition] = useTransition();
@@ -39,7 +42,7 @@ export default function ExpenseModal({ isOpen, onClose, expense, categories = []
     const [amount, setAmount] = useState("");
     const [description, setDescription] = useState("");
     const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"));
-    const [type, setType] = useState<"EXPENSE" | "INCOME">("EXPENSE");
+    const [type, setType] = useState<"EXPENSE" | "INCOME" | "DUE">("EXPENSE");
     const [categoryId, setCategoryId] = useState("");
     const [childId, setChildId] = useState("");
 
@@ -69,12 +72,12 @@ export default function ExpenseModal({ isOpen, onClose, expense, categories = []
                 setAmount("");
                 setDescription("");
                 setDate(format(new Date(), "yyyy-MM-dd"));
-                setType("EXPENSE");
-                setCategoryId(categories[0]?.id || "");
-                setChildId("");
+                setType(defaultType);
+                setCategoryId("");
+                setChildId(defaultChildId);
             }
         }
-    }, [isOpen, expense, categories]);
+    }, [isOpen, expense, categories, defaultType, defaultChildId]);
 
     if (!isOpen) return null;
 
@@ -137,6 +140,13 @@ export default function ExpenseModal({ isOpen, onClose, expense, categories = []
                                 >
                                     Income
                                 </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setType("DUE")}
+                                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${type === "DUE" ? "bg-white dark:bg-neutral-700 text-orange-600 shadow-sm" : "text-gray-500 hover:text-gray-900 dark:hover:text-gray-300"} `}
+                                >
+                                    Due
+                                </button>
                             </div>
 
                             <div>
@@ -174,7 +184,7 @@ export default function ExpenseModal({ isOpen, onClose, expense, categories = []
                             </div>
 
                             {/* Child Select (Optional) - Only for Expenses? */}
-                            {type === "EXPENSE" && activeChildren.length > 0 && (
+                            {(type === "INCOME" || type === "DUE") && activeChildren.length > 0 && (
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Child <span className="text-gray-400 font-normal">(Optional)</span></label>
                                     <SearchableSelect
@@ -229,7 +239,7 @@ export default function ExpenseModal({ isOpen, onClose, expense, categories = []
                                     disabled={isPending}
                                     className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors shadow-lg shadow-blue-600/20 disabled:opacity-50"
                                 >
-                                    {isPending ? "Saving..." : (expense ? "Save Changes" : `Add ${type === "EXPENSE" ? "Expense" : "Income"} `)}
+                                    {isPending ? "Saving..." : (expense ? "Save Changes" : `Add ${type === "EXPENSE" ? "Expense" : type === "INCOME" ? "Income" : "Due"} `)}
                                 </button>
                                 {error && (
                                     <p className="text-red-500 text-sm text-center mt-2">{error}</p>

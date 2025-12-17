@@ -23,7 +23,7 @@ export default function MainChart({ expenses, period = "month" }: MainChartProps
     return (
         <div className="glass-card p-6 rounded-2xl h-[400px] animate-fade-in animate-delay-200">
             <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Spending Activity</h3>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Income vs Expense</h3>
             </div>
 
             <div className="w-full h-[300px]">
@@ -46,11 +46,22 @@ export default function MainChart({ expenses, period = "month" }: MainChartProps
                         <Tooltip
                             cursor={{ fill: 'transparent' }}
                             contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                            formatter={(val: number) => [formatCurrency(val), "Spent"]}
+                            formatter={(val: number, name: string) => [
+                                formatCurrency(val),
+                                name.charAt(0).toUpperCase() + name.slice(1)
+                            ]}
                         />
                         <Bar
-                            dataKey="value"
-                            fill="#4f46e5" /* Primary color */
+                            dataKey="income"
+                            name="Income"
+                            fill="#10b981" /* Green for Income */
+                            radius={[4, 4, 0, 0]}
+                            maxBarSize={50}
+                        />
+                        <Bar
+                            dataKey="expense"
+                            name="Expense"
+                            fill="#ef4444" /* Red for Expense */
                             radius={[4, 4, 0, 0]}
                             maxBarSize={50}
                         />

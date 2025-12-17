@@ -18,7 +18,7 @@ import { auth } from "@/auth";
 import { User } from "@/lib/types";
 
 export const metadata: Metadata = {
-  title: "VR Expense Tracker",
+  title: "VR FinTrack",
   description: "Track your expenses easily",
 };
 

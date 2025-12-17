@@ -2,7 +2,7 @@
 
 import React from "react";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Receipt, Settings, Tags, Users, Plus, X, Baby } from "lucide-react";
+import { LayoutDashboard, Receipt, IndianRupee, Tags, Users, Plus, X, Baby, Clock } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import UserSwitcher from "./UserSwitcher";
@@ -20,10 +20,11 @@ export default function Sidebar({ isOpen, onClose, onAddExpense }: SidebarProps)
 
     const navItems = [
         { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard", active: pathname === "/dashboard" },
-        { icon: Receipt, label: "All Expenses", href: "/expenses" },
-        { icon: Tags, label: "Categories", href: "/settings/categories" },
-        { icon: Baby, label: "Children", href: "/settings/children" },
-        { icon: Users, label: "Team Members", href: "/settings" },
+        { icon: IndianRupee, label: "All Expenses", href: "/expenses" },
+        { icon: Baby, label: "Childrens", href: "/childrens" },
+        { icon: Clock, label: "Due List", href: "/dues" },
+        { icon: Tags, label: "Categories", href: "/categories" },
+        { icon: Users, label: "Users", href: "/users" },
     ];
 
 
@@ -47,13 +48,12 @@ export default function Sidebar({ isOpen, onClose, onAddExpense }: SidebarProps)
                     <div className="p-6 pb-2 flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-blue-500/20 shadow-lg">
-                                <Receipt className="w-6 h-6 text-white" />
+                                <IndianRupee className="w-6 h-6 text-white" />
                             </div>
                             <div>
                                 <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent leading-none">
-                                    VR Expense
+                                    VR FinTrack
                                 </h1>
-                                <span className="text-sm font-medium text-gray-400 tracking-wide">Tracker</span>
                             </div>
                         </div>
                         <button

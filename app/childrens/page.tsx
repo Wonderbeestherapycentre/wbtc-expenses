@@ -18,7 +18,7 @@ export default async function ChildrenPage() {
                     <p className="text-gray-500 dark:text-gray-400 mt-1">Manage family members</p>
                 </div>
 
-                <ChildSettings children={allChildren as any} />
+                <ChildSettings children={allChildren as any} categories={categories} />
             </div>
         </AppLayout>
     );

@@ -1,13 +1,15 @@
 import { db } from "./db";
 import { expenses, users, categories, children } from "./db/schema";
 
-import { eq, desc, and, gte, lte, sql } from "drizzle-orm";
+import { eq, desc, asc, and, gte, lte, sql } from "drizzle-orm";
 import { auth } from "@/auth";
 
 interface ExpenseFilters {
     categoryId?: string;
+    childId?: string;
     startDate?: Date;
     endDate?: Date;
+    type?: "EXPENSE" | "INCOME" | "DUE";
 }
 
 export async function fetchExpenses(limit?: number, filters?: ExpenseFilters, page?: number) {
@@ -26,11 +28,17 @@ export async function fetchExpenses(limit?: number, filters?: ExpenseFilters, pa
     if (filters?.categoryId && filters.categoryId !== "all") {
         conditions.push(eq(expenses.categoryId, filters.categoryId));
     }
+    if (filters?.childId) {
+        conditions.push(eq(expenses.childId, filters.childId));
+    }
     if (filters?.startDate) {
         conditions.push(gte(expenses.date, filters.startDate));
     }
     if (filters?.endDate) {
         conditions.push(lte(expenses.date, filters.endDate));
+    }
+    if (filters?.type) {
+        conditions.push(eq(expenses.type, filters.type));
     }
 
     // Get Total Count for Pagination
@@ -81,26 +89,31 @@ export async function fetchExpenses(limit?: number, filters?: ExpenseFilters, pa
     };
 }
 
-export async function fetchStats(startDate?: Date, endDate?: Date) {
+export async function fetchStats(startDate?: Date, endDate?: Date, childId?: string) {
     // We should probably optimize this with DB aggregation, but for now:
-    const { data: all } = await fetchExpenses(undefined, { startDate, endDate }); // Fetches filtered transactions
+    const { data: all } = await fetchExpenses(undefined, { startDate, endDate, childId }); // Fetches filtered transactions
 
     let totalExpenses = 0;
     let totalIncome = 0;
+    let totalDue = 0;
     const byCategory: Record<string, number> = {};
+    const incomeByCategory: Record<string, number> = {};
     const incomeByMember: Record<string, number> = {};
     const expenseByMember: Record<string, number> = {};
 
     all.forEach(e => {
         const val = Number(e.amount);
         const userName = e.user?.name || "Unknown";
+        const catName = e.category || "Uncategorized";
 
         if (e.type === "INCOME") {
             totalIncome += val;
             incomeByMember[userName] = (incomeByMember[userName] || 0) + val;
+            incomeByCategory[catName] = (incomeByCategory[catName] || 0) + val;
+        } else if (e.type === "DUE") {
+            totalDue += val;
         } else {
             totalExpenses += val;
-            const catName = e.category || "Uncategorized";
             byCategory[catName] = (byCategory[catName] || 0) + val;
             expenseByMember[userName] = (expenseByMember[userName] || 0) + val;
         }
@@ -109,8 +122,10 @@ export async function fetchStats(startDate?: Date, endDate?: Date) {
     return {
         totalExpenses,
         totalIncome,
+        totalDue,
         balance: totalIncome - totalExpenses,
-        byCategory,
+        byCategory, // Expenses by category
+        incomeByCategory, // Income by category
         incomeByMember,
         expenseByMember
     };
@@ -163,8 +178,22 @@ export async function fetchChildren(includeInactive = false) {
 
     const data = await db.query.children.findMany({
         where: and(...conditions),
-        orderBy: [desc(children.createdAt)]
+        orderBy: [asc(children.name)]
     });
 
     return data;
+}
+
+export async function fetchChild(id: string) {
+    const session = await auth();
+    if (!session?.user?.familyId) return null;
+
+    const child = await db.query.children.findFirst({
+        where: and(
+            eq(children.id, id),
+            eq(children.familyId, session.user.familyId)
+        )
+    });
+
+    return child || null;
 }

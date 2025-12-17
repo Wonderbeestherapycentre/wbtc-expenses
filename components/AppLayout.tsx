@@ -31,7 +31,7 @@ export default function AppLayout({ children, categories = [], familyChildren = 
                     </div>
                     <div>
                         <h1 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent leading-none">
-                            VR Expense
+                            VR FinTrack
                         </h1>
                         <span className="text-xs font-medium text-gray-400 tracking-wide">Tracker</span>
                     </div>

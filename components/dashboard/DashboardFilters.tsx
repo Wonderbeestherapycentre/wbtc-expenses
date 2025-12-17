@@ -1,10 +1,11 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Filter } from "lucide-react";
 
 export default function DashboardFilters() {
     const router = useRouter();
+    const pathname = usePathname();
     const searchParams = useSearchParams();
 
     const currentPeriod = searchParams.get("period") || "all";
@@ -22,7 +23,7 @@ export default function DashboardFilters() {
         } else {
             params.set(key, value);
         }
-        router.push(`/?${params.toString()}`);
+        router.push(`${pathname}?${params.toString()}`);
     };
 
     return (

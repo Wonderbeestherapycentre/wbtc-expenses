@@ -37,7 +37,7 @@ export const budgets = pgTable("budgets", {
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const transactionTypeEnum = pgEnum("transaction_type", ["EXPENSE", "INCOME"]);
+export const transactionTypeEnum = pgEnum("transaction_type", ["EXPENSE", "INCOME", "DUE"]);
 
 
 export const children = pgTable("children", {
@@ -57,7 +57,7 @@ export const expenses = pgTable("expenses", {
     amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
     description: text("description"),
     date: timestamp("date").notNull(),
-    type: text("type").$type<"EXPENSE" | "INCOME">().default("EXPENSE").notNull(),
+    type: text("type").$type<"EXPENSE" | "INCOME" | "DUE">().default("EXPENSE").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

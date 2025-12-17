@@ -16,7 +16,7 @@ export interface Expense {
     categoryId?: string;
     userId: string;
     user?: User; // Optional pending user fetch
-    type: "INCOME" | "EXPENSE";
+    type: "INCOME" | "EXPENSE" | "DUE";
     childName?: string;
 }
 

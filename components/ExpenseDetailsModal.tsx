@@ -11,7 +11,7 @@ interface Expense {
     amount: number;
     date: Date;
     category: string;
-    type: "EXPENSE" | "INCOME";
+    type: "EXPENSE" | "INCOME" | "DUE";
     user?: {
         name: string;
         color?: string | null;
@@ -49,8 +49,8 @@ export default function ExpenseDetailsModal({ isOpen, onClose, expense }: Expens
                 <div className="p-6 space-y-6 overflow-y-auto custom-scrollbar">
                     {/* Amount & Type */}
                     <div className="text-center p-6 bg-gray-50 dark:bg-neutral-800/50 rounded-2xl">
-                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold mb-2 uppercase tracking-wide ${expense.type === "INCOME" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
-                            {expense.type === "INCOME" ? "Income" : "Expense"}
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold mb-2 uppercase tracking-wide ${expense.type === "INCOME" ? "bg-green-100 text-green-700" : expense.type === "DUE" ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700"}`}>
+                            {expense.type === "INCOME" ? "Income" : expense.type === "DUE" ? "Due" : "Expense"}
                         </span>
                         <h3 className={`text-4xl font-bold ${expense.type === "INCOME" ? "text-green-600" : "text-gray-900 dark:text-white"}`}>
                             {expense.type === "INCOME" ? "+" : "-"}₹{Number(expense.amount).toFixed(2)}

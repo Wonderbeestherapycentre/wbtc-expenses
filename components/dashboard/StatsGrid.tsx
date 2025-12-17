@@ -54,29 +54,29 @@ export default function StatsGrid({ stats, period = "month", childStats }: Stats
             color: "text-blue-600",
             bg: "bg-blue-50 dark:bg-blue-900/20",
         });
-        cards.push({
-            label: "Inactive Children",
-            value: childStats.inactive.toString(),
-            icon: UserX,
-            color: "text-gray-600",
-            bg: "bg-gray-50 dark:bg-gray-900/20",
-        });
+        // cards.push({
+        //     label: "Inactive Children",
+        //     value: childStats.inactive.toString(),
+        //     icon: UserX,
+        //     color: "text-gray-600",
+        //     bg: "bg-gray-50 dark:bg-gray-900/20",
+        // });
     }
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 md:gap-4 gap-2">
             {cards.map((card, i) => (
                 <div
                     key={card.label}
-                    className="glass-card p-6 rounded-2xl flex items-center animate-fade-in"
+                    className="glass-card p-2 rounded-2xl flex items-center animate-fade-in"
                     style={{ animationDelay: `${i * 100}ms` }}
                 >
-                    <div className={`p-4 rounded-xl ${card.bg} mr-5`}>
+                    <div className={`p-1 rounded-xl ${card.bg} mr-5`}>
                         <card.icon className={`w-6 h-6 ${card.color}`} />
                     </div>
                     <div>
                         <p className="text-sm text-gray-500 font-medium">{card.label}</p>
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{card.value}</h3>
+                        <h3 className="md:text-2xl text-lg font-bold text-gray-900 dark:text-white mt-1">{card.value}</h3>
                     </div>
                 </div>
             ))}

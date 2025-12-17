@@ -29,11 +29,11 @@ export default function RecentExpenses({ expenses }: RecentExpensesProps) {
                                     <p className="font-medium text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors">{e.category}</p>
                                     <div className="flex items-center gap-2">
                                         <p className="text-xs text-gray-500 capitalize">{e.type.toLowerCase()} • {format(new Date(e.date), "dd MMM yy").toUpperCase()}</p>
-                                        {e.user && (
+                                        {/* {e.user && (
                                             <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 dark:bg-neutral-700 text-gray-600 dark:text-gray-400">
                                                 {e.user.name}
                                             </span>
-                                        )}
+                                        )} */}
                                     </div>
                                 </div>
                             </div>

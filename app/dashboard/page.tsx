@@ -2,8 +2,10 @@ import AppLayout from "@/components/AppLayout";
 import StatsGrid from "@/components/dashboard/StatsGrid";
 import MainChart from "@/components/dashboard/MainChart";
 import RecentExpenses from "@/components/dashboard/RecentExpenses";
-import DashboardCharts from "@/components/dashboard/DashboardCharts";
+
 import DashboardFilters from "@/components/dashboard/DashboardFilters";
+import CategoryIncomeChart from "@/components/dashboard/CategoryIncomeChart";
+import DueList from "@/components/dashboard/DueList";
 import { auth } from "@/auth";
 import { fetchExpenses, fetchStats, fetchCategories, fetchChildren } from "@/lib/data";
 
@@ -68,17 +70,19 @@ export default async function Home({ searchParams }: { searchParams: any }) {
                     childStats={{ active: activeChildCount, inactive: inactiveChildCount }}
                 />
 
-                {/* Charts & Lists */}
-                <DashboardCharts stats={stats} />
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
                     <div className="lg:col-span-2">
-                        <MainChart expenses={expenses} period={period} />
+                        <CategoryIncomeChart data={stats.incomeByCategory} />
                     </div>
                     <div className="lg:col-span-1">
-                        {/* Use existing Refactored RecentExpenses or inline list styled better */}
                         <RecentExpenses expenses={expenses} />
                     </div>
+                </div>
+
+                <div className="grid grid-cols-1">
+                    <MainChart expenses={expenses} period={period} />
                 </div>
 
             </div>

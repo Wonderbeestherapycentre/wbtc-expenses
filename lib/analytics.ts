@@ -61,39 +61,29 @@ export function getChartData(expenses: Expense[], period: Period, currentDate: D
         const days = eachDayOfInterval({ start, end });
 
         return days.map(day => {
-            const dayExpenses = expenses.filter(e => isSameDay(e.date, day));
-            const total = dayExpenses.reduce((sum, e) => sum + e.amount, 0);
+            const dayItems = expenses.filter(e => isSameDay(e.date, day));
+            const income = dayItems.filter(e => e.type === "INCOME").reduce((sum, e) => sum + e.amount, 0);
+            const expense = dayItems.filter(e => e.type === "EXPENSE").reduce((sum, e) => sum + e.amount, 0);
             return {
                 label: format(day, "EEE"), // Mon, Tue
-                value: total,
+                income,
+                expense,
                 date: day
             };
         });
     }
 
     if (period === "month" || period === "last_month" || period === "custom" || period === "all") {
-        // For custom/all, we might want dynamic buckets, but for now daily is safe if range isn't huge.
-        // If range is unset, we can't easily do eachDayOfInterval without knowing boundaries.
-        // BUT, MainChart is visual. `currentDate` is passed as `new Date()` usually.
-        // For `last_month`, we need the actual range of expenses or relative to currentDate?
-        // Actually page.tsx filters expenses. getChartData generates the X-axis labels.
-        // If we use `eachDayOfInterval`, we need the correct start/end.
-
         let start = startOfMonth(currentDate);
         let end = endOfMonth(currentDate);
 
         if (period === "last_month") {
-            // currentDate is usually "now", so we need to shift.
-            // OR we can infer from expenses if mapped?
-            // Safer: Just use the expenses' date range if available, or generate from filtered set.
-            // Let's rely on expenses range for custom/all, and explicit calc for last_month.
             const lastMonthDate = new Date(currentDate);
             lastMonthDate.setMonth(lastMonthDate.getMonth() - 1);
             start = startOfMonth(lastMonthDate);
             end = endOfMonth(lastMonthDate);
         } else if (period === "custom" || period === "all") {
             if (expenses.length === 0) return [];
-            // Find min/max from expenses
             const sorted = [...expenses].sort((a, b) => a.date.getTime() - b.date.getTime());
             start = startOfDay(sorted[0].date);
             end = endOfDay(sorted[sorted.length - 1].date);
@@ -102,37 +92,44 @@ export function getChartData(expenses: Expense[], period: Period, currentDate: D
         const days = eachDayOfInterval({ start, end });
 
         return days.map(day => {
-            const dayExpenses = expenses.filter(e => isSameDay(e.date, day));
-            const total = dayExpenses.reduce((sum, e) => sum + e.amount, 0);
+            const dayItems = expenses.filter(e => isSameDay(e.date, day));
+            const income = dayItems.filter(e => e.type === "INCOME").reduce((sum, e) => sum + e.amount, 0);
+            const expense = dayItems.filter(e => e.type === "EXPENSE").reduce((sum, e) => sum + e.amount, 0);
             return {
                 label: format(day, "d MMM"),
-                value: total,
+                income,
+                expense,
                 date: day,
             };
         });
     }
 
     if (period === "year") {
-        // 12 months
         const months = Array.from({ length: 12 }, (_, i) => i);
         return months.map(m => {
             const date = new Date(currentDate.getFullYear(), m, 1);
-            const monthExpenses = expenses.filter(e => isSameMonth(e.date, date));
-            const total = monthExpenses.reduce((sum, e) => sum + e.amount, 0);
+            const monthItems = expenses.filter(e => isSameMonth(e.date, date));
+            const income = monthItems.filter(e => e.type === "INCOME").reduce((sum, e) => sum + e.amount, 0);
+            const expense = monthItems.filter(e => e.type === "EXPENSE").reduce((sum, e) => sum + e.amount, 0);
             return {
                 label: format(date, "MMM"),
-                value: total,
+                income,
+                expense,
                 date: date
             };
         });
     }
 
-    // Day view - maybe hourly? Or just list categories? 
-    // Let's do hourly distribution if we had time data, but for now specific transactions or categories
-    // Let's return categories for Day View
+    // Day view - Breakdown by Category
     const categories = Array.from(new Set(expenses.map(e => e.category)));
-    return categories.map(cat => ({
-        label: cat,
-        value: expenses.filter(e => e.category === cat).reduce((sum, e) => sum + e.amount, 0)
-    }));
+    return categories.map(cat => {
+        const catItems = expenses.filter(e => e.category === cat);
+        const income = catItems.filter(e => e.type === "INCOME").reduce((sum, e) => sum + e.amount, 0);
+        const expense = catItems.filter(e => e.type === "EXPENSE").reduce((sum, e) => sum + e.amount, 0);
+        return {
+            label: cat,
+            income,
+            expense
+        }
+    });
 }

@@ -110,7 +110,7 @@ export async function addExpenseAction(prevState: any, formData: FormData) {
     const amount = parseFloat(formData.get("amount") as string);
     const description = (formData.get("description") as string) || "";
     const dateStr = formData.get("date") as string;
-    const type = (formData.get("type") as "EXPENSE" | "INCOME") || "EXPENSE";
+    const type = (formData.get("type") as "EXPENSE" | "INCOME" | "DUE") || "EXPENSE";
     const childId = (formData.get("childId") as string) || null;
 
 
@@ -131,13 +131,32 @@ export async function addExpenseAction(prevState: any, formData: FormData) {
         categoryId: (formData.get("categoryId") as string),
         // category: (formData.get("category") as string) || "Uncategorized", // REMOVED: Not in schema
         childId: childId,
-        type: (formData.get("type") as "EXPENSE" | "INCOME") || "EXPENSE",
+        type: type,
 
     });
 
     revalidatePath("/dashboard");
     revalidatePath("/expenses");
     return { message: "Transaction added" };
+}
+
+export async function markDueAsPaid(id: string) {
+    const session = await auth();
+    if (!session?.user?.familyId) return { message: "Unauthorized" };
+
+    const expense = await db.query.expenses.findFirst({
+        where: and(eq(expenses.id, id), eq(expenses.familyId, session.user.familyId))
+    });
+
+    if (!expense) return { message: "Record not found" };
+
+    await db.update(expenses).set({
+        type: "INCOME"
+    }).where(eq(expenses.id, id));
+
+    revalidatePath("/dashboard");
+    revalidatePath("/expenses");
+    return { message: "Payment marked as paid" };
 }
 
 export async function deleteUser(userId: string) {
