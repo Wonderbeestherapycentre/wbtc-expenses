@@ -2,7 +2,7 @@
 
 import React from "react";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Receipt, IndianRupee, Tags, Users, Plus, X, Baby, Clock } from "lucide-react";
+import { LayoutDashboard, Receipt, IndianRupee, Tags, Users, Plus, X, Baby, Clock, Briefcase } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import UserSwitcher from "./UserSwitcher";
@@ -22,6 +22,7 @@ export default function Sidebar({ isOpen, onClose, onAddExpense }: SidebarProps)
         { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard", active: pathname === "/dashboard" },
         { icon: IndianRupee, label: "All Expenses", href: "/expenses" },
         { icon: Baby, label: "Childrens", href: "/childrens" },
+        { icon: Briefcase, label: "Staffs", href: "/staffs" },
         { icon: Clock, label: "Due List", href: "/dues" },
         { icon: Tags, label: "Categories", href: "/categories" },
         { icon: Users, label: "Users", href: "/users" },

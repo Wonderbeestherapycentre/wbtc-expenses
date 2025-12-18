@@ -1,12 +1,11 @@
+
 import { notFound } from "next/navigation";
-import { fetchChild, fetchExpenses, fetchStats, fetchCategories, fetchChildren, fetchStaffs } from "@/lib/data";
+import { fetchStaff, fetchExpenses, fetchStats, fetchCategories, fetchChildren, fetchStaffs } from "@/lib/data";
 import ExpenseList from "@/components/ExpenseList";
-import Pagination from "@/components/Pagination";
-import { ITEMS_PER_PAGE } from "@/lib/constants";
 import { ArrowLeft, Wallet, TrendingUp, TrendingDown, PiggyBank } from "lucide-react";
 import Link from "next/link";
 
-interface ChildPageProps {
+interface StaffPageProps {
     params: Promise<{
         id: string;
     }>;
@@ -15,22 +14,22 @@ interface ChildPageProps {
     }>;
 }
 
-export default async function ChildPage({ params, searchParams }: ChildPageProps) {
+export default async function StaffPage({ params, searchParams }: StaffPageProps) {
     const { id } = await params;
     const resolvedSearchParams = await searchParams;
     const page = Number(resolvedSearchParams?.page) || 1;
 
-    const child = await fetchChild(id);
+    const staff = await fetchStaff(id);
 
-    if (!child) {
+    if (!staff) {
         notFound();
     }
 
-    // Fetch stats specific to this child
-    const stats = await fetchStats(undefined, undefined, id);
+    // Fetch stats specific to this staff
+    const stats = await fetchStats(undefined, undefined, undefined, id);
 
-    // Fetch expenses specific to this child
-    const { data: expenses, meta } = await fetchExpenses(ITEMS_PER_PAGE, { childId: id }, page);
+    // Fetch expenses specific to this staff
+    const { data: expenses } = await fetchExpenses(undefined, { staffId: id }, page);
 
     // Fetch other data needed for ExpenseList
     const categories = await fetchCategories();
@@ -40,17 +39,17 @@ export default async function ChildPage({ params, searchParams }: ChildPageProps
     return (
         <div className="space-y-6 px-2 md:px-4 ">
             <div className="flex items-center gap-4">
-                <Link href="/childrens">
+                <Link href="/staffs">
                     <button className="h-8 w-8 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-gray-100 dark:hover:bg-neutral-800">
                         <ArrowLeft className="h-4 w-4" />
                     </button>
                 </Link>
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                        {child.name}
+                        {staff.name}
                     </h1>
                     <p className="text-muted-foreground text-sm text-gray-500">
-                        View financial details for {child.name}
+                        View details and transactions for {staff.name}
                     </p>
                 </div>
             </div>
@@ -59,26 +58,29 @@ export default async function ChildPage({ params, searchParams }: ChildPageProps
             <div className="grid gap-4 md:grid-cols-2">
                 <div className="glass-card rounded-xl p-6">
                     <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <h3 className="tracking-tight text-sm font-medium">Paid Amount</h3>
-                        <TrendingUp className="h-4 w-4 text-green-500" />
+                        <h3 className="tracking-tight text-sm font-medium">Total Paid (Expense)</h3>
+                        <TrendingDown className="h-4 w-4 text-red-500" />
                     </div>
                     <div>
-                        <div className="text-2xl font-bold text-green-600">
-                            ₹{stats.totalIncome.toFixed(2)}
+                        <div className="text-2xl font-bold text-red-600">
+                            ₹{stats.totalExpenses.toFixed(2)}
                         </div>
                     </div>
                 </div>
-                <div className="glass-card rounded-xl p-6">
-                    <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <h3 className="tracking-tight text-sm font-medium">Due Amount</h3>
-                        <PiggyBank className="h-4 w-4 text-orange-500" />
-                    </div>
-                    <div>
-                        <div className="text-2xl font-bold text-orange-600">
-                            ₹{stats.totalDue.toFixed(2)}
-                        </div>
-                    </div>
-                </div>
+                {/* Staff might not have Due/Income usually, but let's show Balance or maybe nothing else? 
+                    If we use "Fee" button for staff as "Payment" (Expense), then 'totalExpenses' tracks payments to staff.
+                    If we strictly mirror child, child has Income (Paid) and Due. 
+                    Staff probably has Salary (Expense) and maybe Advance (Due?).
+                    Let's just show Expenses for now as that's safe.
+                    Or show Income if they generate revenue?
+                    User said "Staffs like child".
+                    Child tracks "Paid Amount" (Income) and "Due Amount" (Due).
+                    If Staff is logically same, maybe we track "Income" from Staff? No, usually we pay staff.
+                    But if "Staff" means "Person who brings in commission", maybe Income?
+                    But usually Staff = Expense.
+                    Let's assume standard expense tracking for staff. 
+                    So Total Paid = stats.totalExpenses.
+                */}
             </div>
 
             {/* Transactions List */}
@@ -88,13 +90,9 @@ export default async function ChildPage({ params, searchParams }: ChildPageProps
                     categories={categories}
                     familyChildren={children}
                     familyStaffs={staffs}
-                    defaultChildId={id}
+                    defaultStaffId={id}
                 />
-
-                <Pagination currentPage={meta.page} totalPages={meta.totalPages} />
             </div>
         </div>
     );
 }
-
-

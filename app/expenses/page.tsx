@@ -1,5 +1,5 @@
 import AppLayout from "@/components/AppLayout";
-import { fetchExpenses, fetchCategories, fetchChildren } from "@/lib/data";
+import { fetchExpenses, fetchCategories, fetchChildren, fetchStaffs } from "@/lib/data";
 import ExpenseList from "@/components/ExpenseList";
 import ExpenseFilters from "@/components/ExpenseFilters";
 import Pagination from "@/components/Pagination";
@@ -42,9 +42,10 @@ export default async function ExpensesPage({ searchParams }: { searchParams: any
     const { data: expenses, meta } = await fetchExpenses(ITEMS_PER_PAGE, { categoryId, startDate, endDate }, page);
     const categories = await fetchCategories();
     const children = await fetchChildren();
+    const staffs = await fetchStaffs();
 
     return (
-        <AppLayout categories={categories} familyChildren={children}>
+        <AppLayout categories={categories} familyChildren={children} familyStaffs={staffs}>
 
             <div className="space-y-6 animate-fade-in">
                 <div>
@@ -54,7 +55,7 @@ export default async function ExpensesPage({ searchParams }: { searchParams: any
 
                 <ExpenseFilters categories={categories} />
 
-                <ExpenseList expenses={expenses} categories={categories} familyChildren={children} />
+                <ExpenseList expenses={expenses} categories={categories} familyChildren={children} familyStaffs={staffs} />
 
                 <Pagination currentPage={meta.page} totalPages={meta.totalPages} />
             </div>

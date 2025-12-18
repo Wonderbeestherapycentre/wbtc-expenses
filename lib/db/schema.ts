@@ -48,12 +48,22 @@ export const children = pgTable("children", {
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+
+export const staffs = pgTable("staffs", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    name: text("name").notNull(),
+    status: text("status", { enum: ["ACTIVE", "INACTIVE"] }).default("ACTIVE").notNull(),
+    familyId: uuid("family_id").references(() => families.id).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const expenses = pgTable("expenses", {
     id: uuid("id").defaultRandom().primaryKey(),
     userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
     familyId: uuid("family_id").references(() => families.id, { onDelete: "cascade" }).notNull(),
     categoryId: uuid("category_id").references(() => categories.id).notNull(),
     childId: uuid("child_id").references(() => children.id),
+    staffId: uuid("staff_id").references(() => staffs.id),
     amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
     description: text("description"),
     date: timestamp("date").notNull(),
@@ -68,6 +78,7 @@ export const familiesRelations = relations(families, ({ many }) => ({
     categories: many(categories),
     expenses: many(expenses),
     children: many(children),
+    staffs: many(staffs),
 }));
 
 export const usersRelations = relations(users, ({ one, many }) => ({
@@ -84,11 +95,20 @@ export const categoriesRelations = relations(categories, ({ one, many }) => ({
         fields: [categories.familyId],
         references: [families.id],
     }),
+
 }));
 
 export const childrenRelations = relations(children, ({ one, many }) => ({
     family: one(families, {
         fields: [children.familyId],
+        references: [families.id],
+    }),
+    expenses: many(expenses),
+}));
+
+export const staffsRelations = relations(staffs, ({ one, many }) => ({
+    family: one(families, {
+        fields: [staffs.familyId],
         references: [families.id],
     }),
     expenses: many(expenses),
@@ -110,6 +130,10 @@ export const expensesRelations = relations(expenses, ({ one }) => ({
     child: one(children, {
         fields: [expenses.childId],
         references: [children.id],
+    }),
+    staff: one(staffs, {
+        fields: [expenses.staffId],
+        references: [staffs.id],
     }),
 }));
 

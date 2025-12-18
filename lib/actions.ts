@@ -3,7 +3,7 @@
 import { signIn, signOut } from "@/auth";
 import { AuthError } from "next-auth";
 import { db } from "./db";
-import { users, families, expenses, categories, roleEnum, budgets, children } from "./db/schema";
+import { users, families, expenses, categories, roleEnum, budgets, children, staffs } from "./db/schema";
 
 import bcrypt from "bcryptjs";
 import { eq, desc, and } from "drizzle-orm";
@@ -112,6 +112,7 @@ export async function addExpenseAction(prevState: any, formData: FormData) {
     const dateStr = formData.get("date") as string;
     const type = (formData.get("type") as "EXPENSE" | "INCOME" | "DUE") || "EXPENSE";
     const childId = (formData.get("childId") as string) || null;
+    const staffId = (formData.get("staffId") as string) || null;
 
 
     if (!amount || !dateStr) {
@@ -131,6 +132,7 @@ export async function addExpenseAction(prevState: any, formData: FormData) {
         categoryId: (formData.get("categoryId") as string),
         // category: (formData.get("category") as string) || "Uncategorized", // REMOVED: Not in schema
         childId: childId,
+        staffId: staffId,
         type: type,
 
     });
@@ -380,6 +382,7 @@ export async function updateExpense(id: string, formData: FormData) {
         date: new Date(dateStr),
         categoryId: categoryId,
         childId: (formData.get("childId") as string) || null,
+        staffId: (formData.get("staffId") as string) || null,
         type: (formData.get("type") as "EXPENSE" | "INCOME") || "EXPENSE",
 
     }).where(and(eq(expenses.id, id), eq(expenses.familyId, session.user.familyId)));
@@ -476,4 +479,52 @@ export async function deleteChild(id: string) {
 
     revalidatePath("/settings");
     return { message: "Child deleted" };
+}
+
+// --- Staff Actions ---
+export async function createStaff(formData: FormData) {
+    const session = await auth();
+    if (!session?.user?.familyId) return { message: "Unauthorized" };
+
+    const name = formData.get("name") as string;
+    const status = (formData.get("status") as "ACTIVE" | "INACTIVE") || "ACTIVE";
+
+    if (!name) return { message: "Name is required" };
+
+    await db.insert(staffs).values({
+        name,
+        status,
+        familyId: session.user.familyId
+    });
+
+    revalidatePath("/settings");
+    return { message: "Staff member created" };
+}
+
+export async function updateStaff(id: string, formData: FormData) {
+    const session = await auth();
+    if (!session?.user?.familyId) return { message: "Unauthorized" };
+
+    const name = formData.get("name") as string;
+    const status = (formData.get("status") as "ACTIVE" | "INACTIVE") || "ACTIVE";
+
+    if (!name) return { message: "Name is required" };
+
+    await db.update(staffs).set({ name, status }).where(and(eq(staffs.id, id), eq(staffs.familyId, session.user.familyId)));
+    revalidatePath("/settings");
+    return { message: "Staff member updated" };
+}
+
+export async function deleteStaff(id: string) {
+    const session = await auth();
+    if (!session?.user?.familyId) return { message: "Unauthorized" };
+
+    try {
+        await db.delete(staffs).where(and(eq(staffs.id, id), eq(staffs.familyId, session.user.familyId)));
+    } catch (e) {
+        return { message: "Cannot delete staff member in use" };
+    }
+
+    revalidatePath("/settings");
+    return { message: "Staff member deleted" };
 }

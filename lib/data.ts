@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { expenses, users, categories, children } from "./db/schema";
+import { expenses, users, categories, children, staffs } from "./db/schema";
 
 import { eq, desc, asc, and, gte, lte, sql } from "drizzle-orm";
 import { auth } from "@/auth";
@@ -7,6 +7,7 @@ import { auth } from "@/auth";
 interface ExpenseFilters {
     categoryId?: string;
     childId?: string;
+    staffId?: string;
     startDate?: Date;
     endDate?: Date;
     type?: "EXPENSE" | "INCOME" | "DUE";
@@ -30,6 +31,9 @@ export async function fetchExpenses(limit?: number, filters?: ExpenseFilters, pa
     }
     if (filters?.childId) {
         conditions.push(eq(expenses.childId, filters.childId));
+    }
+    if (filters?.staffId) {
+        conditions.push(eq(expenses.staffId, filters.staffId));
     }
     if (filters?.startDate) {
         conditions.push(gte(expenses.date, filters.startDate));
@@ -59,7 +63,8 @@ export async function fetchExpenses(limit?: number, filters?: ExpenseFilters, pa
         with: {
             user: true,
             category: true,
-            child: true // Fetch child relation
+            child: true, // Fetch child relation
+            staff: true // Fetch staff relation
         }
     });
 
@@ -73,6 +78,8 @@ export async function fetchExpenses(limit?: number, filters?: ExpenseFilters, pa
         categoryId: e.categoryId,
         childId: e.childId,
         childName: e.child?.name, // Map child name
+        staffId: e.staffId,
+        staffName: e.staff?.name, // Map staff name
         userId: e.userId,
         type: e.type,
         user: e.user
@@ -89,9 +96,9 @@ export async function fetchExpenses(limit?: number, filters?: ExpenseFilters, pa
     };
 }
 
-export async function fetchStats(startDate?: Date, endDate?: Date, childId?: string) {
+export async function fetchStats(startDate?: Date, endDate?: Date, childId?: string, staffId?: string) {
     // We should probably optimize this with DB aggregation, but for now:
-    const { data: all } = await fetchExpenses(undefined, { startDate, endDate, childId }); // Fetches filtered transactions
+    const { data: all } = await fetchExpenses(undefined, { startDate, endDate, childId, staffId }); // Fetches filtered transactions
 
     let totalExpenses = 0;
     let totalIncome = 0;
@@ -184,6 +191,42 @@ export async function fetchChildren(includeInactive = false) {
     return data;
 }
 
+export async function fetchChildrenPaginated(page: number, limit: number, includeInactive = true) {
+    const session = await auth();
+    if (!session?.user?.familyId) return { data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } };
+
+    const conditions = [eq(children.familyId, session.user.familyId)];
+    if (!includeInactive) {
+        conditions.push(eq(children.status, "ACTIVE"));
+    }
+
+    // Get Total Count
+    const [countResult] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(children)
+        .where(and(...conditions));
+    const totalCount = Number(countResult.count);
+
+    const offset = (page - 1) * limit;
+
+    const data = await db.query.children.findMany({
+        where: and(...conditions),
+        orderBy: [asc(children.name)],
+        limit: limit,
+        offset: offset
+    });
+
+    return {
+        data,
+        meta: {
+            total: totalCount,
+            page: page,
+            limit: limit,
+            totalPages: Math.ceil(totalCount / limit)
+        }
+    };
+}
+
 export async function fetchChild(id: string) {
     const session = await auth();
     if (!session?.user?.familyId) return null;
@@ -196,4 +239,35 @@ export async function fetchChild(id: string) {
     });
 
     return child || null;
+}
+
+export async function fetchStaffs(includeInactive = false) {
+    const session = await auth();
+    if (!session?.user?.familyId) return [];
+
+    const conditions = [eq(staffs.familyId, session.user.familyId)];
+    if (!includeInactive) {
+        conditions.push(eq(staffs.status, "ACTIVE"));
+    }
+
+    const data = await db.query.staffs.findMany({
+        where: and(...conditions),
+        orderBy: [asc(staffs.name)]
+    });
+
+    return data;
+}
+
+export async function fetchStaff(id: string) {
+    const session = await auth();
+    if (!session?.user?.familyId) return null;
+
+    const staff = await db.query.staffs.findFirst({
+        where: and(
+            eq(staffs.id, id),
+            eq(staffs.familyId, session.user.familyId)
+        )
+    });
+
+    return staff || null;
 }

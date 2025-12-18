@@ -17,6 +17,7 @@ interface Expense {
     category?: string; // Could be ID or name depending on usage, usually ID in this app context? No, mapped to name in some places. Let's allow string.
     categoryId?: string;
     childId?: string | null;
+    staffId?: string | null;
     type?: "EXPENSE" | "INCOME" | "DUE";
 }
 
@@ -28,12 +29,15 @@ interface ExpenseModalProps {
     expense?: Expense | null;
     categories?: { id: string; name: string }[];
     familyChildren?: { id: string; name: string; status?: string }[];
+    familyStaffs?: { id: string; name: string; status?: string }[];
     defaultType?: "EXPENSE" | "INCOME" | "DUE";
     defaultChildId?: string;
+    defaultStaffId?: string;
 }
 
-export default function ExpenseModal({ isOpen, onClose, expense, categories = [], familyChildren = [], defaultType = "EXPENSE", defaultChildId = "" }: ExpenseModalProps) {
+export default function ExpenseModal({ isOpen, onClose, expense, categories = [], familyChildren = [], familyStaffs = [], defaultType = "EXPENSE", defaultChildId = "", defaultStaffId = "" }: ExpenseModalProps) {
     const activeChildren = familyChildren.filter(c => c.status !== "INACTIVE");
+    const activeStaffs = familyStaffs.filter(s => s.status !== "INACTIVE");
 
     const [isPending, startTransition] = useTransition();
     const [error, setError] = useState<string | null>(null);
@@ -45,6 +49,7 @@ export default function ExpenseModal({ isOpen, onClose, expense, categories = []
     const [type, setType] = useState<"EXPENSE" | "INCOME" | "DUE">("EXPENSE");
     const [categoryId, setCategoryId] = useState("");
     const [childId, setChildId] = useState("");
+    const [staffId, setStaffId] = useState("");
 
     // Portal mount state
     const [mounted, setMounted] = useState(false);
@@ -68,6 +73,7 @@ export default function ExpenseModal({ isOpen, onClose, expense, categories = []
                 setCategoryId(catMatch ? catMatch.id : "");
 
                 setChildId(expense.childId || "");
+                setStaffId(expense.staffId || "");
             } else {
                 setAmount("");
                 setDescription("");
@@ -75,9 +81,10 @@ export default function ExpenseModal({ isOpen, onClose, expense, categories = []
                 setType(defaultType);
                 setCategoryId("");
                 setChildId(defaultChildId);
+                setStaffId(defaultStaffId);
             }
         }
-    }, [isOpen, expense, categories, defaultType, defaultChildId]);
+    }, [isOpen, expense, categories, defaultType, defaultChildId, defaultStaffId]);
 
     if (!isOpen) return null;
 
@@ -88,6 +95,7 @@ export default function ExpenseModal({ isOpen, onClose, expense, categories = []
 
         // Ensure childId is set if selected
         if (childId) formData.set("childId", childId);
+        if (staffId) formData.set("staffId", staffId);
 
         startTransition(async () => {
             let result;
@@ -190,20 +198,28 @@ export default function ExpenseModal({ isOpen, onClose, expense, categories = []
                                     <SearchableSelect
                                         options={activeChildren}
                                         value={childId}
-                                        onChange={setChildId}
+                                        onChange={(val) => {
+                                            setChildId(val);
+                                            if (val) setStaffId(""); // Mutually exclusive
+                                        }}
                                         placeholder="Select Child"
                                     />
-                                    {/* Hidden input for form submission if needed, but we handle it in state. 
-                                        However, if we want formData to work automatically without manual append, we might need a hidden input.
-                                        But handleSubmit constructs formData manually or uses useActionState. 
-                                        Let's check handleSubmit.
-                                        It uses new FormData(e.currentTarget).
-                                        So we either need a hidden input with name="childId" or append it manually.
-                                        SearchableSelect has a hidden input? Let's check.
-                                        Yes, SearchableSelect has a hidden input but it doesn't have a name prop passed to it yet.
-                                        I should verify SearchableSelect again or just manual append in handleSubmit.
-                                        Let's manual append in handleSubmit to be safe as I did comment out that logic earlier.
-                                    */}
+                                </div>
+                            )}
+
+                            {/* Staff Select (Optional) - Only for Expenses? Or maybe everything. Flexible. */}
+                            {activeStaffs.length > 0 && (
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Staff <span className="text-gray-400 font-normal">(Optional)</span></label>
+                                    <SearchableSelect
+                                        options={activeStaffs}
+                                        value={staffId}
+                                        onChange={(val) => {
+                                            setStaffId(val);
+                                            if (val) setChildId(""); // Mutually exclusive
+                                        }}
+                                        placeholder="Select Staff"
+                                    />
                                 </div>
                             )}
 
