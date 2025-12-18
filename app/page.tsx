@@ -54,7 +54,7 @@ export default function LoginPage() {
             </div>
           </div>
           {/* Column 3 */}
-          <div className="space-y-4">
+          <div className="space-y-4 hidden md:block">
             <div className="h-32 relative rounded-xl w-full overflow-hidden">
               <NextImage src={card2} alt="Card Design" fill className="object-cover" placeholder="blur" />
             </div>
@@ -69,7 +69,7 @@ export default function LoginPage() {
             </div>
           </div>
           {/* Column 4 */}
-          <div className="space-y-4 mt-8">
+          <div className="space-y-4 mt-8 hidden md:block">
             <div className="h-40 relative rounded-xl w-full overflow-hidden">
               <NextImage src={card1} alt="Card Design" fill className="object-cover" placeholder="blur" />
             </div>
