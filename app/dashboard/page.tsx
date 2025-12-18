@@ -1,10 +1,10 @@
 import AppLayout from "@/components/AppLayout";
 import StatsGrid from "@/components/dashboard/StatsGrid";
 import MainChart from "@/components/dashboard/MainChart";
-import RecentExpenses from "@/components/dashboard/RecentExpenses";
 
 import DashboardFilters from "@/components/dashboard/DashboardFilters";
 import CategoryIncomeChart from "@/components/dashboard/CategoryIncomeChart";
+import CategoryExpenseChart from "@/components/dashboard/CategoryExpenseChart";
 import DueList from "@/components/dashboard/DueList";
 import { auth } from "@/auth";
 import { fetchExpenses, fetchStats, fetchCategories, fetchChildren } from "@/lib/data";
@@ -37,6 +37,7 @@ export default async function Home({ searchParams }: { searchParams: any }) {
         endDate = endOfYear(now);
     } else if (period === "custom") {
         if (from) startDate = startOfDay(new Date(from));
+        if (to) endDate = endOfDay(new Date(to));
     }
 
     const stats = await fetchStats(startDate, endDate);
@@ -50,7 +51,7 @@ export default async function Home({ searchParams }: { searchParams: any }) {
 
     return (
         <AppLayout categories={categories} familyChildren={children}>
-            <div className="space-y-8 animate-fade-in">
+            <div className="space-y-2 animate-fade-in">
 
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -72,12 +73,12 @@ export default async function Home({ searchParams }: { searchParams: any }) {
 
 
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
-                    <div className="lg:col-span-2">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+                    <div className="lg:col-span-1">
                         <CategoryIncomeChart data={stats.incomeByCategory} />
                     </div>
                     <div className="lg:col-span-1">
-                        <RecentExpenses expenses={expenses} />
+                        <CategoryExpenseChart data={stats.byCategory} />
                     </div>
                 </div>
 

@@ -10,9 +10,10 @@ interface Category {
 
 interface ExpenseFiltersProps {
     categories: Category[];
+    showTypeFilter?: boolean;
 }
 
-export default function ExpenseFilters({ categories }: ExpenseFiltersProps) {
+export default function ExpenseFilters({ categories, showTypeFilter = true }: ExpenseFiltersProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -54,10 +55,10 @@ export default function ExpenseFilters({ categories }: ExpenseFiltersProps) {
                 className="px-3 py-2 bg-gray-50 dark:bg-neutral-800 border-none rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-blue-500 cursor-pointer outline-none min-w-[120px]"
             >
                 <option value="all">All Time</option>
-                <option value="day">Today</option>
-                <option value="week">This Week</option>
                 <option value="month">This Month</option>
+                <option value="last_month">Last Month</option>
                 <option value="year">This Year</option>
+                <option value="last_year">Last Year</option>
                 <option value="custom">Custom Range</option>
             </select>
 
@@ -77,6 +78,19 @@ export default function ExpenseFilters({ categories }: ExpenseFiltersProps) {
                         className="px-3 py-2 bg-gray-50 dark:bg-neutral-800 border-none rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
                     />
                 </div>
+            )}
+
+            {showTypeFilter && (
+                <select
+                    value={searchParams.get("type") || "all"}
+                    onChange={(e) => handleFilterChange("type", e.target.value)}
+                    className="px-3 py-2 bg-gray-50 dark:bg-neutral-800 border-none rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-blue-500 cursor-pointer outline-none min-w-[120px]"
+                >
+                    <option value="all">All Types</option>
+                    <option value="INCOME">Income</option>
+                    <option value="EXPENSE">Expense</option>
+                    <option value="DUE">Due</option>
+                </select>
             )}
 
             <select

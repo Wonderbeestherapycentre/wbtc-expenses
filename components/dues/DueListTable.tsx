@@ -55,13 +55,13 @@ export default function DueListTable({ expenses }: DueListTableProps) {
                 <table className="w-full md:min-w-[800px]">
                     <thead className="bg-gray-50/50 dark:bg-neutral-800/50 border-b border-gray-100 dark:border-neutral-800">
                         <tr>
-                            <th className="text-left py-3 px-1 md:py-4 md:px-6 text-xs font-semibold text-gray-500 uppercase">Date</th>
-                            <th className="hidden md:table-cell text-left py-3 px-3 md:py-4 md:px-6 text-xs font-semibold text-gray-500 uppercase">Child</th>
-                            <th className="hidden md:table-cell text-left py-3 px-3 md:py-4 md:px-6 text-xs font-semibold text-gray-500 uppercase">Category</th>
-                            <th className="md:hidden text-left py-3 px-3 text-xs font-semibold text-gray-500 uppercase">Details</th>
-                            <th className="text-left py-3 px-1 md:py-4 md:px-6 text-xs font-semibold text-gray-500 uppercase">Amount</th>
-                            <th className="hidden md:table-cell text-left py-3 px-3 md:py-4 md:px-6 text-xs font-semibold text-gray-500 uppercase">Description</th>
-                            <th className="text-right py-3 px-1 md:py-4 md:px-6 text-xs font-semibold text-gray-500 uppercase">
+                            <th className="text-left py-1 px-1 md:py-2 md:px-6 text-xs font-semibold text-gray-500 uppercase">Date</th>
+                            <th className="hidden md:table-cell text-left py-1 px-3 md:py-2 md:px-6 text-xs font-semibold text-gray-500 uppercase">Child</th>
+                            <th className="hidden md:table-cell text-left py-1 px-3 md:py-2 md:px-6 text-xs font-semibold text-gray-500 uppercase">Category</th>
+                            <th className="md:hidden text-left py-1 px-3 text-xs font-semibold text-gray-500 uppercase">Details</th>
+                            <th className="text-left py-1 px-1 md:py-2 md:px-6 text-xs font-semibold text-gray-500 uppercase">Amount</th>
+                            <th className="hidden md:table-cell text-left py-1 px-3 md:py-2 md:px-6 text-xs font-semibold text-gray-500 uppercase">Description</th>
+                            <th className="text-right py-1 px-1 md:py-2 md:px-6 text-xs font-semibold text-gray-500 uppercase">
                                 Action
                             </th>
                         </tr>
@@ -79,44 +79,38 @@ export default function DueListTable({ expenses }: DueListTableProps) {
                         ) : (
                             expenses.map((expense) => (
                                 <tr key={expense.id} className="hover:bg-gray-50/50 dark:hover:bg-neutral-800/30 transition-colors group">
-                                    <td className="py-3 px-1 md:py-4 md:px-6 text-sm text-gray-500">
+                                    <td className="py-1 px-1 md:py-2 md:px-6 text-sm text-gray-500">
                                         <span className="md:hidden">{format(new Date(expense.date), "dd MMM").toUpperCase()}</span>
                                         <span className="hidden md:inline">{format(new Date(expense.date), "dd MMM yyyy").toUpperCase()}</span>
                                     </td>
 
-                                    <td className="hidden md:table-cell py-3 px-3 md:py-4 md:px-6">
-                                        {expense.childName ? (
-                                            <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 border border-blue-100 dark:border-blue-800">
-                                                {expense.childName}
-                                            </span>
-                                        ) : (
-                                            <span className="text-gray-400 text-xs">-</span>
-                                        )}
+                                    <td className="hidden md:table-cell py-1 px-3 md:py-2 md:px-6 font-medium text-gray-900 dark:text-white">
+                                        {expense.childName || <span className="text-gray-400 font-normal">-</span>}
                                     </td>
-                                    <td className="hidden md:table-cell py-3 px-3 md:py-4 md:px-6 font-medium text-gray-900 dark:text-white">
-                                        {expense.category}
+                                    <td className="hidden md:table-cell py-1 px-3 md:py-2 md:px-6">
+                                        <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 border border-blue-100 dark:border-blue-800">
+                                            {expense.category}
+                                        </span>
                                     </td>
 
-                                    <td className="md:hidden py-3 px-3">
+                                    <td className="md:hidden py-1 px-3">
                                         <div className="flex flex-col items-start gap-1">
                                             <span className="font-medium text-gray-900 dark:text-white text-sm">
+                                                {expense.childName || "-"}
+                                            </span>
+                                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 border border-blue-100 dark:border-blue-800">
                                                 {expense.category}
                                             </span>
-                                            {expense.childName && (
-                                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 border border-blue-100 dark:border-blue-800">
-                                                    {expense.childName}
-                                                </span>
-                                            )}
                                         </div>
                                     </td>
 
-                                    <td className="py-3 px-1 md:py-4 md:px-6 font-bold whitespace-nowrap text-orange-600">
+                                    <td className="py-1 px-1 md:py-2 md:px-6 font-bold whitespace-nowrap text-orange-600">
                                         {formatCurrency(expense.amount)}
                                     </td>
-                                    <td className="hidden md:table-cell py-3 px-3 md:py-4 md:px-6 text-sm text-gray-600 dark:text-gray-400 max-w-[150px] truncate" title={expense.description || ""}>
+                                    <td className="hidden md:table-cell py-1 px-3 md:py-2 md:px-6 text-sm text-gray-600 dark:text-gray-400 max-w-[150px] truncate" title={expense.description || ""}>
                                         {expense.description || "-"}
                                     </td>
-                                    <td className="py-3 px-1 md:py-4 md:px-6 text-right">
+                                    <td className="py-1 px-1 md:py-2 md:px-6 text-right">
                                         <div className="flex items-center justify-end gap-2">
                                             <button
                                                 onClick={() => setConfirmPayId(expense.id)}

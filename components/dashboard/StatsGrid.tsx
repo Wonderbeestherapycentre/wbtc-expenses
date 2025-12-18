@@ -1,13 +1,15 @@
 "use client";
 
 import { formatCurrency } from "@/lib/utils";
-import { TrendingUp, Wallet, CreditCard, Users, UserX } from "lucide-react";
+import { TrendingUp, Wallet, CreditCard, Users, UserX, Clock } from "lucide-react";
 
 interface StatsGridProps {
     stats: {
         totalExpenses: number;
         totalIncome: number;
         balance: number;
+        dueCount?: number;
+        totalDue?: number;
         byCategory: Record<string, number>;
     };
     period?: string;
@@ -46,6 +48,16 @@ export default function StatsGrid({ stats, period = "month", childStats }: Stats
         }
     ];
 
+    if (stats.dueCount !== undefined) {
+        cards.push({
+            label: "Pending Dues",
+            value: formatCurrency(stats.totalDue || 0),
+            icon: Clock,
+            color: "text-orange-600",
+            bg: "bg-orange-50 dark:bg-orange-900/20",
+        });
+    }
+
     if (childStats) {
         cards.push({
             label: "Active Children",
@@ -54,13 +66,6 @@ export default function StatsGrid({ stats, period = "month", childStats }: Stats
             color: "text-blue-600",
             bg: "bg-blue-50 dark:bg-blue-900/20",
         });
-        // cards.push({
-        //     label: "Inactive Children",
-        //     value: childStats.inactive.toString(),
-        //     icon: UserX,
-        //     color: "text-gray-600",
-        //     bg: "bg-gray-50 dark:bg-gray-900/20",
-        // });
     }
 
     return (
@@ -71,12 +76,12 @@ export default function StatsGrid({ stats, period = "month", childStats }: Stats
                     className="glass-card p-2 rounded-2xl flex items-center animate-fade-in"
                     style={{ animationDelay: `${i * 100}ms` }}
                 >
-                    <div className={`p-1 rounded-xl ${card.bg} mr-5`}>
-                        <card.icon className={`w-6 h-6 ${card.color}`} />
+                    <div className={`p-1 rounded-xl ${card.bg} mr-2`}>
+                        <card.icon className={`md:w-6 md:h-6 w-4 h-4 ${card.color}`} />
                     </div>
                     <div>
                         <p className="text-sm text-gray-500 font-medium">{card.label}</p>
-                        <h3 className="md:text-2xl text-lg font-bold text-gray-900 dark:text-white mt-1">{card.value}</h3>
+                        <h3 className="md:text-xl text-md font-bold text-gray-900 dark:text-white mt-1">{card.value}</h3>
                     </div>
                 </div>
             ))}

@@ -103,6 +103,7 @@ export async function fetchStats(startDate?: Date, endDate?: Date, childId?: str
     let totalExpenses = 0;
     let totalIncome = 0;
     let totalDue = 0;
+    let dueCount = 0;
     const byCategory: Record<string, number> = {};
     const incomeByCategory: Record<string, number> = {};
     const incomeByMember: Record<string, number> = {};
@@ -119,6 +120,7 @@ export async function fetchStats(startDate?: Date, endDate?: Date, childId?: str
             incomeByCategory[catName] = (incomeByCategory[catName] || 0) + val;
         } else if (e.type === "DUE") {
             totalDue += val;
+            dueCount++;
         } else {
             totalExpenses += val;
             byCategory[catName] = (byCategory[catName] || 0) + val;
@@ -130,6 +132,7 @@ export async function fetchStats(startDate?: Date, endDate?: Date, childId?: str
         totalExpenses,
         totalIncome,
         totalDue,
+        dueCount,
         balance: totalIncome - totalExpenses,
         byCategory, // Expenses by category
         incomeByCategory, // Income by category

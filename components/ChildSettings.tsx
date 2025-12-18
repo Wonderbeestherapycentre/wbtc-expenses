@@ -111,10 +111,10 @@ export default function ChildSettings({ children, categories = [] }: { children:
                     <table className="w-full md:min-w-[600px]">
                         <thead className="bg-gray-50/50 dark:bg-neutral-800/50 border-b border-gray-100 dark:border-neutral-800">
                             <tr>
-                                <th className="text-left py-3 px-1 md:py-4 md:px-6 text-xs font-semibold text-gray-500 uppercase">Name</th>
-                                <th className="hidden md:table-cell text-left py-3 px-3 md:py-4 md:px-6 text-xs font-semibold text-gray-500 uppercase">Status</th>
-                                <th className="text-center py-3 px-1 md:py-4 md:px-6 text-xs font-semibold text-gray-500 uppercase">Fee</th>
-                                <th className="text-right py-3 px-1 md:py-4 md:px-6 text-xs font-semibold text-gray-500 uppercase">Actions</th>
+                                <th className="text-left py-1 px-1 md:py-2 md:px-6 text-xs font-semibold text-gray-500 uppercase">Name</th>
+                                <th className="hidden md:table-cell text-left py-1 px-3 md:py-2 md:px-6 text-xs font-semibold text-gray-500 uppercase">Status</th>
+                                <th className="text-center py-1 px-1 md:py-2 md:px-6 text-xs font-semibold text-gray-500 uppercase">Fee</th>
+                                <th className="text-right py-1 px-1 md:py-2 md:px-6 text-xs font-semibold text-gray-500 uppercase">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 dark:divide-neutral-800">
@@ -125,7 +125,7 @@ export default function ChildSettings({ children, categories = [] }: { children:
                             ) : (
                                 children.map((child) => (
                                     <tr key={child.id} className="hover:bg-gray-50/50 dark:hover:bg-neutral-800/30 transition-colors">
-                                        <td className="py-3 px-1 md:py-4 md:px-6">
+                                        <td className="py-1 px-1 md:py-2 md:px-6">
                                             <div className="flex items-center gap-3">
                                                 <div
                                                     className="w-8 h-8 rounded-full flex items-center justify-center text-xs text-white font-bold shadow-sm"
@@ -146,7 +146,7 @@ export default function ChildSettings({ children, categories = [] }: { children:
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="hidden md:table-cell py-3 px-3 md:py-4 md:px-6">
+                                        <td className="hidden md:table-cell py-1 px-3 md:py-2 md:px-6">
                                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${child.status === 'ACTIVE'
                                                 ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
                                                 : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
@@ -154,7 +154,7 @@ export default function ChildSettings({ children, categories = [] }: { children:
                                                 {child.status === 'ACTIVE' ? 'Active' : 'Inactive'}
                                             </span>
                                         </td>
-                                        <td className="py-3 px-1 md:py-4 md:px-6 text-center">
+                                        <td className="py-1 px-1 md:py-2 md:px-6 text-center">
                                             <button onClick={() => handleFeeClick(child.id)}
                                                 className="inline-flex items-center px-3 py-2  hover:bg-blue-700 hover:text-white text-black text-sm font-medium rounded-lg transition-colors shadow-lg shadow-blue-600/20 flex items-center gap-2"
 
@@ -164,7 +164,7 @@ export default function ChildSettings({ children, categories = [] }: { children:
                                                 </span>
                                             </button>
                                         </td>
-                                        <td className="py-3 px-1 md:py-4 md:px-6 text-right">
+                                        <td className="py-1 px-1 md:py-2 md:px-6 text-right">
                                             <div className="flex items-center justify-end gap-1 md:gap-2">
                                                 <Link
                                                     href={`/childrens/${child.id}`}

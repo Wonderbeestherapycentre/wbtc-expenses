@@ -121,7 +121,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isPending}
-            className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-medium shadow-lg shadow-blue-500/30 transform hover:scale-[1.02] transition-all disabled:opacity-50 disabled:hover:scale-100"
+            className="w-full py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-medium shadow-lg shadow-blue-500/30 transform hover:scale-[1.02] transition-all disabled:opacity-50 disabled:hover:scale-100"
           >
             {isPending ? "Logging in..." : "Sign In"}
           </button>
@@ -133,12 +133,12 @@ export default function LoginPage() {
           )}
         </form>
 
-        <p className="mt-6 text-center text-sm text-gray-500">
+        {/* <p className="mt-6 text-center text-sm text-gray-500">
           Don't have an account?{" "}
           <a href="/register" className="text-blue-600 hover:text-blue-700 font-medium hover:underline">
             Create one
           </a>
-        </p>
+        </p> */}
       </div>
     </div>
   );

@@ -168,7 +168,7 @@ export default function ExpenseModal({ isOpen, onClose, expense, categories = []
                                         required
                                         value={amount}
                                         onChange={(e) => setAmount(e.target.value)}
-                                        className="w-full pl-8 pr-4 py-3 bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                                        className="w-full pl-8 pr-4 py-1 bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
                                         placeholder="0.00"
                                     />
                                 </div>
@@ -182,7 +182,7 @@ export default function ExpenseModal({ isOpen, onClose, expense, categories = []
                                     value={categoryId}
                                     required
                                     onChange={(e) => setCategoryId(e.target.value)}
-                                    className="w-full px-4 py-3 bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all appearance-none"
+                                    className="w-full px-4 py-1 bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all appearance-none"
                                 >
                                     <option value="" disabled>Select Category</option>
                                     {categories.map(c => (
@@ -230,7 +230,7 @@ export default function ExpenseModal({ isOpen, onClose, expense, categories = []
                                     type="text"
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
-                                    className="w-full px-4 py-3 bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                                    className="w-full px-4 py-1 bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
                                     placeholder="What was this for?"
                                 />
                             </div>
@@ -244,7 +244,7 @@ export default function ExpenseModal({ isOpen, onClose, expense, categories = []
                                         required
                                         value={date}
                                         onChange={(e) => setDate(e.target.value)}
-                                        className="w-full px-4 py-3 bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                                        className="w-full px-4 py-1 bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
                                     />
                                 </div>
                             </div>

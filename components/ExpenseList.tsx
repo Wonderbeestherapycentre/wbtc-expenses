@@ -110,16 +110,16 @@ export default function ExpenseList({ expenses, categories, familyChildren = [],
                     <table className="w-full md:min-w-[800px]">
                         <thead className="bg-gray-50/50 dark:bg-neutral-800/50 border-b border-gray-100 dark:border-neutral-800">
                             <tr>
-                                <th className="text-left py-3 px-1 md:py-4 md:px-6 text-xs font-semibold text-gray-500 uppercase">Date</th>
-                                <th className="hidden md:table-cell text-left py-3 px-3 md:py-4 md:px-6 text-xs font-semibold text-gray-500 uppercase">
+                                <th className="text-left py-1 px-1 md:py-2 md:px-6 text-xs font-semibold text-gray-500 uppercase">Date</th>
+                                <th className="hidden md:table-cell text-left py-1 px-3 md:py-2 md:px-6 text-xs font-semibold text-gray-500 uppercase">
                                     {defaultChildId ? "Child" : defaultStaffId ? "Staff" : "Child / Staff"}
                                 </th>
 
-                                <th className="hidden md:table-cell text-left py-3 px-3 md:py-4 md:px-6 text-xs font-semibold text-gray-500 uppercase">Category</th>
-                                <th className="md:hidden text-left py-3 px-3 text-xs font-semibold text-gray-500 uppercase">Details</th>
-                                <th className="text-left py-3 px-1 md:py-4 md:px-6 text-xs font-semibold text-gray-500 uppercase">amount</th>
-                                <th className="hidden md:table-cell text-left py-3 px-3 md:py-4 md:px-6 text-xs font-semibold text-gray-500 uppercase">Description</th>
-                                <th className="text-right py-3 px-1 md:py-4 md:px-6 text-xs font-semibold text-gray-500 uppercase">
+                                <th className="hidden md:table-cell text-left py-1 px-3 md:py-2 md:px-6 text-xs font-semibold text-gray-500 uppercase">Category</th>
+                                <th className="md:hidden text-left py-1 px-3 text-xs font-semibold text-gray-500 uppercase">Details</th>
+                                <th className="text-left py-1 px-1 md:py-2 md:px-6 text-xs font-semibold text-gray-500 uppercase">amount</th>
+                                <th className="hidden md:table-cell text-left py-1 px-3 md:py-2 md:px-6 text-xs font-semibold text-gray-500 uppercase">Description</th>
+                                <th className="text-right py-1 px-1 md:py-2 md:px-6 text-xs font-semibold text-gray-500 uppercase">
                                     Actions
                                 </th>
                             </tr>
@@ -132,41 +132,17 @@ export default function ExpenseList({ expenses, categories, familyChildren = [],
                             ) : (
                                 expenses.map((expense) => (
                                     <tr key={expense.id} className="hover:bg-gray-50/50 dark:hover:bg-neutral-800/30 transition-colors">
-                                        <td className="py-3 px-1 md:py-4 md:px-6 text-sm text-gray-500" suppressHydrationWarning>
+                                        <td className="py-1 px-1 md:py-2 md:px-6 text-sm text-gray-500" suppressHydrationWarning>
                                             <span className="md:hidden">{format(new Date(expense.date), "dd MMM yy").toUpperCase()}</span>
                                             <span className="hidden md:inline">{format(new Date(expense.date), "dd MMM yy").toUpperCase()}</span>
                                         </td>
-                                        {/* <td className="hidden md:table-cell py-3 px-3 md:py-4 md:px-6">
-                                            {expense.user && (
-                                                <div className="flex items-center gap-2">
-                                                    <div
-                                                        className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] text-white font-bold"
-                                                        style={{ backgroundColor: expense.user.color || '#3b82f6' }}
-                                                    >
-                                                        {expense.user.name[0]}
-                                                    </div>
-                                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                        {expense.user.name.split(" ")[0]}
-                                                    </span>
-                                                </div>
-                                            )}
-                                        </td> */}
-                                        {/* <td className="hidden md:table-cell py-3 px-3 md:py-4 md:px-6">
+                                        <td className="hidden md:table-cell py-1 px-3 md:py-2 md:px-6">
                                             {expense.childName ? (
-                                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 border border-blue-100 dark:border-blue-800">
-                                                    {expense.childName}
-                                                </span>
-                                            ) : (
-                                                <span className="text-gray-400 text-xs">-</span>
-                                            )}
-                                        </td> */}
-                                        <td className="hidden md:table-cell py-3 px-3 md:py-4 md:px-6">
-                                            {expense.childName ? (
-                                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 border border-blue-100 dark:border-blue-800">
+                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-cyan-50 text-cyan-700 dark:bg-cyan-900/20 dark:text-cyan-300 border border-cyan-100 dark:border-cyan-800">
                                                     {expense.childName}
                                                 </span>
                                             ) : expense.staffName ? (
-                                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300 border border-purple-100 dark:border-purple-800">
+                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-50 text-orange-700 dark:bg-orange-900/20 dark:text-orange-300 border border-orange-100 dark:border-orange-800">
                                                     {expense.staffName}
                                                 </span>
                                             ) : (
@@ -174,34 +150,37 @@ export default function ExpenseList({ expenses, categories, familyChildren = [],
                                             )}
                                         </td>
 
-                                        <td className="hidden md:table-cell py-3 px-3 md:py-4 md:px-6 font-medium text-gray-900 dark:text-white">
-                                            {expense.category}
+                                        <td className="hidden md:table-cell py-1 px-3 md:py-2 md:px-6">
+                                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 border border-blue-100 dark:border-blue-800">
+                                                {expense.category}
+                                            </span>
                                         </td>
-                                        <td className="md:hidden py-3 px-3">
+                                        <td className="md:hidden py-1 px-3">
                                             <div className="flex flex-col items-start gap-1">
-                                                <span className="font-medium text-gray-900 dark:text-white text-sm">
-                                                    {expense.category}
-                                                </span>
-
-                                                {expense.childName && (
-                                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 border border-blue-100 dark:border-blue-800">
+                                                {expense.childName ? (
+                                                    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-cyan-50 text-cyan-700 dark:bg-cyan-900/20 dark:text-cyan-300 border border-cyan-100 dark:border-cyan-800">
                                                         {expense.childName}
                                                     </span>
-                                                )}
-                                                {expense.staffName && (
-                                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300 border border-purple-100 dark:border-purple-800">
+                                                ) : expense.staffName ? (
+                                                    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-orange-50 text-orange-700 dark:bg-orange-900/20 dark:text-orange-300 border border-orange-100 dark:border-orange-800">
                                                         {expense.staffName}
                                                     </span>
+                                                ) : (
+                                                    <span className="text-gray-400 text-sm">-</span>
                                                 )}
+
+                                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 border border-blue-100 dark:border-blue-800">
+                                                    {expense.category}
+                                                </span>
                                             </div>
                                         </td>
-                                        <td className={`py-3 px-1 md:py-4 md:px-6 font-bold whitespace-nowrap ${expense.type === "INCOME" ? "text-green-600" : "text-gray-900 dark:text-white"}`}>
+                                        <td className={`py-1 px-1 md:py-2 md:px-6 font-bold whitespace-nowrap ${expense.type === "INCOME" ? "text-green-600" : "text-gray-900 dark:text-white"}`}>
                                             {expense.type === "INCOME" ? "+" : "-"}₹{Number(expense.amount).toFixed(2)}
                                         </td>
-                                        <td className="hidden md:table-cell py-3 px-3 md:py-4 md:px-6 text-sm text-gray-600 dark:text-gray-400 max-w-[150px] truncate" title={expense.description || ""}>
+                                        <td className="hidden md:table-cell py-1 px-3 md:py-2 md:px-6 text-sm text-gray-600 dark:text-gray-400 max-w-[150px] truncate" title={expense.description || ""}>
                                             {expense.description || "-"}
                                         </td>
-                                        <td className="py-3 px-1 md:py-4 md:px-6 text-right">
+                                        <td className="py-1 px-1 md:py-2 md:px-6 text-right">
                                             <div className="flex items-center justify-end gap-1 md:gap-2">
                                                 <button
                                                     onClick={() => setViewingExpense(expense)}
